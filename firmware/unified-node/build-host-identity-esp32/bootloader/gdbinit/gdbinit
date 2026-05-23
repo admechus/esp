@@ -1,0 +1,2 @@
+source D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader/gdbinit/symbols
+source D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader/gdbinit/connect

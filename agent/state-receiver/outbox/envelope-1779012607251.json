@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "kind": "signed-envelope",
+  "algorithm": "ES256",
+  "curve": "P-256",
+  "createdAt": "2026-05-17T10:10:05.963Z",
+  "nonceHex": "d2e207d79b2f360fab5044b51f89bc7f",
+  "sender": {
+    "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+    "fingerprintHex": "c641e2f4bd4a38bc1bdab3186a1c9f9ead92b655a3361a375a6785c1b7f70789",
+    "publicKeyBase64": "BFvZm6QGbve3uoCAqvT62rbaEbNO3OGGHHgfODtIK/rx1Qs6YifdvushTnMn2XPp4hb7T6m3imhd3U4qv7ObUas="
+  },
+  "recipient": null,
+  "payload": {
+    "type": "text/plain",
+    "encoding": "utf8",
+    "bodyBase64": "aGFyZHdhcmUgcmVjZWl2ZXIgcmVwbHkgb3ZlciBDT004"
+  },
+  "signatureBase64": "MEUCIEyIrWFJoC0MDLEgCL9CkTc2fWfHaPDXiWu42takozPaAiEAp+OESyQGlY/BJq7XPvbfmcjg07+zqVdmM79O7PsQFLw=",
+  "locallyVerified": true,
+  "recipientKnown": false
+}

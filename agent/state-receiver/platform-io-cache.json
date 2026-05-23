@@ -1,0 +1,30 @@
+{
+  "device": "esp32-host-identity",
+  "chip": "esp32",
+  "profile": "host-attached-node",
+  "transport": "uart0",
+  "outputs": [
+    {
+      "kind": "oled",
+      "driver": null,
+      "driverFamily": "ssd1306-compatible",
+      "resolution": null,
+      "status": "detected",
+      "detection": "common-i2c-probe",
+      "i2cAddress": "0x3C",
+      "sda": 21,
+      "scl": 22,
+      "note": null
+    }
+  ],
+  "gpio": {
+    "pinCount": 40,
+    "inputRange": "0-39",
+    "outputRange": "0-33",
+    "liveProbeSupported": false,
+    "probeStatus": "device-info-only",
+    "attachmentStatus": "live-gpio-attachment-probe-not-implemented",
+    "observedConnections": []
+  },
+  "cachedAt": "2026-05-21T21:05:12.361Z"
+}

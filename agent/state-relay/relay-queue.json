@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "queue": [
+    {
+      "queueId": "queue:c04e2ba35a16da0df2a6708d2520b131",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "messageCount": 1,
+      "status": "delivered",
+      "queueReason": "downstream_unavailable",
+      "lastError": null,
+      "queuedAt": "2026-05-18T14:47:54.645Z",
+      "updatedAt": "2026-05-18T14:48:47.801Z",
+      "bundle": {
+        "version": 1,
+        "kind": "transport-bundle",
+        "createdAt": "2026-05-18T14:47:54.640Z",
+        "source": {
+          "agentName": "sender",
+          "identity": {
+            "algorithm": "ES256",
+            "curve": "P-256",
+            "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+            "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+            "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+          }
+        },
+        "messageCount": 1,
+        "messages": [
+          {
+            "messageId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+            "envelopeId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+            "envelopeCreatedAt": "2026-05-18T14:47:42.170Z",
+            "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+            "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+            "envelope": {
+              "version": 1,
+              "kind": "signed-envelope",
+              "algorithm": "ES256",
+              "curve": "P-256",
+              "createdAt": "2026-05-18T14:47:42.170Z",
+              "nonceHex": "8ed184631287669405843807420c6b60",
+              "sender": {
+                "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+                "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+                "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+              },
+              "recipient": {
+                "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+              },
+              "payload": {
+                "type": "text/plain",
+                "encoding": "utf8",
+                "bodyBase64": "aGFpbw=="
+              },
+              "signatureBase64": "MEUCIQD3yqXEuRYpK7Ielfiqr6Ap3zkwoT2baSvHQjBQuztpngIgRWoIOkeB7qaeEbr2xrpHxetaIWSdM0THC+mHokJLyjQ=",
+              "locallyVerified": true,
+              "recipientKnown": true
+            }
+          }
+        ]
+      },
+      "transferId": "transfer:1779115727749",
+      "relayReceiptId": "relay:d94ed5f7acc18730935666a48548c46d",
+      "deliveredAt": "2026-05-18T14:48:47.801Z"
+    },
+    {
+      "queueId": "queue:0b1afad39e8e1127fc57e7037007ab86",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "messageCount": 1,
+      "status": "delivered",
+      "queueReason": "manual_store_only",
+      "lastError": null,
+      "queuedAt": "2026-05-17T20:47:17.473Z",
+      "updatedAt": "2026-05-17T20:47:17.617Z",
+      "bundle": {
+        "version": 1,
+        "kind": "transport-bundle",
+        "createdAt": "2026-05-17T20:47:17.455Z",
+        "source": {
+          "agentName": "sender",
+          "identity": {
+            "algorithm": "ES256",
+            "curve": "P-256",
+            "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+            "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+            "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+          }
+        },
+        "messageCount": 1,
+        "messages": [
+          {
+            "messageId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+            "envelopeId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+            "envelopeCreatedAt": "2026-05-17T20:47:15.517Z",
+            "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+            "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+            "envelope": {
+              "version": 1,
+              "kind": "signed-envelope",
+              "algorithm": "ES256",
+              "curve": "P-256",
+              "createdAt": "2026-05-17T20:47:15.517Z",
+              "nonceHex": "59c7e723b4c69f4cfbd643b10b1f10fb",
+              "sender": {
+                "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+                "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+                "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+              },
+              "recipient": {
+                "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+              },
+              "payload": {
+                "type": "text/plain",
+                "encoding": "utf8",
+                "bodyBase64": "cmVsYXkgcXVldWUgdGVzdCAyMDI2MDUxNy0yMjQ3MTQ="
+              },
+              "signatureBase64": "MEYCIQD+HR5WIZob3UjkliaSn5cT/gJqZd53REvIfktdCYszCgIhAOGvuOXfUE+NHxYn3bbVZwUAZ40iZP9XdDrL4pdP438+",
+              "locallyVerified": true,
+              "recipientKnown": true
+            }
+          }
+        ]
+      },
+      "transferId": "transfer:1779050837537",
+      "relayReceiptId": "relay:1f0d5dade0eb389b40d06139510a95cc",
+      "deliveredAt": "2026-05-17T20:47:17.617Z"
+    }
+  ]
+}

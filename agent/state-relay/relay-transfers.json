@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "transfers": [
+    {
+      "transferId": "transfer:1779118825665",
+      "relayReceiptId": "relay:821a805fdec7c566691e4a3d0386db51",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 1,
+      "receivedAt": "2026-05-18T15:40:25.665Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:174f213988dd49a37f18f1d818ce7a19",
+          "messageId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+          "envelopeId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-18T15:40:25.706Z",
+          "updatedAt": "2026-05-18T15:40:25.709Z",
+          "createdAt": "2026-05-18T15:40:25.709Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+          "messageId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+          "textPreview": "unified shell test 20260518-174021"
+        }
+      ],
+      "updatedAt": "2026-05-18T15:40:25.718Z",
+      "createdAt": "2026-05-18T15:40:25.718Z"
+    },
+    {
+      "transferId": "transfer:1779115727749",
+      "relayReceiptId": "relay:d94ed5f7acc18730935666a48548c46d",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 1,
+      "receivedAt": "2026-05-18T14:48:47.749Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:82c5ba59c53a9a62fd08c9962b6286ef",
+          "messageId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+          "envelopeId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-18T14:48:47.785Z",
+          "updatedAt": "2026-05-18T14:48:47.787Z",
+          "createdAt": "2026-05-18T14:48:47.787Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+          "messageId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+          "textPreview": "haio"
+        }
+      ],
+      "updatedAt": "2026-05-18T14:48:47.799Z",
+      "createdAt": "2026-05-18T14:48:47.799Z"
+    },
+    {
+      "transferId": "transfer:1779050837537",
+      "relayReceiptId": "relay:1f0d5dade0eb389b40d06139510a95cc",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 1,
+      "receivedAt": "2026-05-17T20:47:17.537Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:f6f77d70c970c6fe8ea57daf4bcd7b7e",
+          "messageId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+          "envelopeId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T20:47:17.588Z",
+          "updatedAt": "2026-05-17T20:47:17.590Z",
+          "createdAt": "2026-05-17T20:47:17.590Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+          "messageId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+          "textPreview": "relay queue test 20260517-224714"
+        }
+      ],
+      "updatedAt": "2026-05-17T20:47:17.604Z",
+      "createdAt": "2026-05-17T20:47:17.604Z"
+    },
+    {
+      "transferId": "transfer:1779047204005",
+      "relayReceiptId": "relay:a555c76c14d55ab7acac0584fb446cab",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "receiver",
+      "targetAgent": "sender",
+      "targetUrl": "http://127.0.0.1:8787",
+      "messageCount": 1,
+      "receivedAt": "2026-05-17T19:46:44.005Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:00a352544844273e73407b854817a4c3",
+          "messageId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+          "envelopeId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+          "senderKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "receiverAgent": "sender",
+          "sourceAgent": "receiver",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T19:46:44.038Z",
+          "updatedAt": "2026-05-17T19:46:44.040Z",
+          "createdAt": "2026-05-17T19:46:44.040Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+          "messageId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+          "textPreview": "Nem message"
+        }
+      ],
+      "updatedAt": "2026-05-17T19:46:44.056Z",
+      "createdAt": "2026-05-17T19:46:44.056Z"
+    },
+    {
+      "transferId": "transfer:1779031290202",
+      "relayReceiptId": "relay:9449ef34b74cb14a5e86c5a2a73e4a8c",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 4,
+      "receivedAt": "2026-05-17T15:21:30.202Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:d88f79dec7c10f36cf471007b0ec4a54",
+          "messageId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+          "envelopeId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T15:21:30.273Z",
+          "updatedAt": "2026-05-17T15:21:30.275Z",
+          "createdAt": "2026-05-17T15:21:30.275Z"
+        },
+        {
+          "receiptId": "receipt:2f3ea226c06ad7dc7f21edf8d9453951",
+          "messageId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+          "envelopeId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T15:21:30.302Z",
+          "updatedAt": "2026-05-17T15:21:30.308Z",
+          "createdAt": "2026-05-17T15:21:30.308Z"
+        },
+        {
+          "receiptId": "receipt:bd1d8543e10e4f5adb26d01fcd567f53",
+          "messageId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+          "envelopeId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T15:21:30.335Z",
+          "updatedAt": "2026-05-17T15:21:30.342Z",
+          "createdAt": "2026-05-17T15:21:30.342Z"
+        },
+        {
+          "receiptId": "receipt:36163ceb2cb9fade49907fefa7e82173",
+          "messageId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+          "envelopeId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T15:21:30.363Z",
+          "updatedAt": "2026-05-17T15:21:30.370Z",
+          "createdAt": "2026-05-17T15:21:30.370Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+          "messageId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+          "textPreview": "Тест сообщение"
+        },
+        {
+          "envelopeId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+          "messageId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+          "textPreview": "test"
+        },
+        {
+          "envelopeId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+          "messageId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+          "textPreview": "test"
+        },
+        {
+          "envelopeId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+          "messageId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+          "textPreview": "Test message"
+        }
+      ],
+      "updatedAt": "2026-05-17T15:21:30.386Z",
+      "createdAt": "2026-05-17T15:21:30.386Z"
+    },
+    {
+      "transferId": "transfer:1779012608198",
+      "relayReceiptId": "relay:8efcdfeb3ae0af713f69893dfb5f4b27",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "receiver",
+      "targetAgent": "sender",
+      "targetUrl": "http://127.0.0.1:8787",
+      "messageCount": 1,
+      "receivedAt": "2026-05-17T10:10:08.198Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:3a3e37b3f4e0ac655e08103a9bca78e2",
+          "messageId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+          "envelopeId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+          "senderKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "receiverAgent": "sender",
+          "sourceAgent": "receiver",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T10:10:08.254Z",
+          "updatedAt": "2026-05-17T10:10:08.256Z",
+          "createdAt": "2026-05-17T10:10:08.256Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+          "messageId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+          "textPreview": "hardware receiver reply over COM8"
+        }
+      ],
+      "updatedAt": "2026-05-17T10:10:08.268Z",
+      "createdAt": "2026-05-17T10:10:08.268Z"
+    },
+    {
+      "transferId": "transfer:1779010667476",
+      "relayReceiptId": "relay:7cbddf7219e873fd991c09b42b43c0fd",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 1,
+      "receivedAt": "2026-05-17T09:37:47.476Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:567df8e49abc2397294e8a5924445b97",
+          "messageId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+          "envelopeId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T09:37:47.559Z",
+          "updatedAt": "2026-05-17T09:37:47.561Z",
+          "createdAt": "2026-05-17T09:37:47.561Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+          "messageId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+          "textPreview": "final relay receipt ui"
+        }
+      ],
+      "updatedAt": "2026-05-17T09:37:47.583Z",
+      "createdAt": "2026-05-17T09:37:47.583Z"
+    },
+    {
+      "transferId": "transfer:1779010538859",
+      "relayReceiptId": "relay:ca4e6b45bdf0fb95b9d5ddbd94f1dac7",
+      "relayName": "gateway-alpha",
+      "sourceAgent": "sender",
+      "targetAgent": "receiver",
+      "targetUrl": "http://127.0.0.1:8788",
+      "messageCount": 1,
+      "receivedAt": "2026-05-17T09:35:38.859Z",
+      "receipts": [
+        {
+          "receiptId": "receipt:504c0600ee0ba336fbac48f4d242aef7",
+          "messageId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+          "envelopeId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+          "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "receiverAgent": "receiver",
+          "sourceAgent": "sender",
+          "relayName": "gateway-alpha",
+          "status": "accepted_remote",
+          "acceptedAt": "2026-05-17T09:35:38.910Z",
+          "updatedAt": "2026-05-17T09:35:38.911Z",
+          "createdAt": "2026-05-17T09:35:38.911Z"
+        }
+      ],
+      "accepted": [
+        {
+          "envelopeId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+          "messageId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+          "textPreview": "relay receipt checkpoint"
+        }
+      ],
+      "updatedAt": "2026-05-17T09:35:38.922Z",
+      "createdAt": "2026-05-17T09:35:38.922Z"
+    }
+  ]
+}

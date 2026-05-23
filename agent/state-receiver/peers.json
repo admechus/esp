@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "peers": [
+    {
+      "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+      "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI=",
+      "algorithm": "ES256",
+      "curve": "P-256",
+      "label": "imported-p256:58053fc",
+      "source": "remote:sender",
+      "role": "peer",
+      "lastImportedEnvelopeAt": "2026-05-18T15:40:23.627Z",
+      "updatedAt": "2026-05-18T15:40:25.676Z",
+      "createdAt": "2026-05-17T09:15:16.004Z"
+    }
+  ]
+}

@@ -1,0 +1,557 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "messageId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+      "envelopeId": "17ec7e392439e9931e90a51ed0e9061fb23d979cb16fd29bbed5146ab9f061fa",
+      "envelopeCreatedAt": "2026-05-18T15:40:23.627Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "unified shell test 20260518-174021",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-18T16:26:23.829Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-18T15:40:23.627Z",
+        "nonceHex": "343095f07d8cffa1289fb058fe033364",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "dW5pZmllZCBzaGVsbCB0ZXN0IDIwMjYwNTE4LTE3NDAyMQ=="
+        },
+        "signatureBase64": "MEUCIF+9ux1Jq6rVnH1E3BgzPMgoObidWWoOmBk/Yo+FnXMtAiEArg/hnGTfLXgYdAU/OfgRIUZTN+JdA/YIasHLba9uhfM=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-18T16:26:23.831Z",
+      "createdAt": "2026-05-18T15:40:25.700Z"
+    },
+    {
+      "messageId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+      "envelopeId": "9f6a5e104bf407c5be31c5a27e4a7aeb75cb9eb56dcac5f15be5bb75098bc6cb",
+      "envelopeCreatedAt": "2026-05-18T14:47:42.170Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "haio",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-18T15:04:02.643Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-18T14:47:42.170Z",
+        "nonceHex": "8ed184631287669405843807420c6b60",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "aGFpbw=="
+        },
+        "signatureBase64": "MEUCIQD3yqXEuRYpK7Ielfiqr6Ap3zkwoT2baSvHQjBQuztpngIgRWoIOkeB7qaeEbr2xrpHxetaIWSdM0THC+mHokJLyjQ=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-18T15:04:02.646Z",
+      "createdAt": "2026-05-18T14:48:47.771Z"
+    },
+    {
+      "messageId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+      "envelopeId": "bc16a339e3397f0f3afc30e0dc011b68db01123026e329dec6d55fddfe5ae500",
+      "envelopeCreatedAt": "2026-05-17T20:47:15.517Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "relay queue test 20260517-224714",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-18T14:45:03.578Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T20:47:15.517Z",
+        "nonceHex": "59c7e723b4c69f4cfbd643b10b1f10fb",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "cmVsYXkgcXVldWUgdGVzdCAyMDI2MDUxNy0yMjQ3MTQ="
+        },
+        "signatureBase64": "MEYCIQD+HR5WIZob3UjkliaSn5cT/gJqZd53REvIfktdCYszCgIhAOGvuOXfUE+NHxYn3bbVZwUAZ40iZP9XdDrL4pdP438+",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-18T14:45:03.580Z",
+      "createdAt": "2026-05-17T20:47:17.570Z"
+    },
+    {
+      "messageId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+      "envelopeId": "a7b909329ddef6ecae0d9168046381ef872afb8a26cd05686006d0bc6a21ae61",
+      "envelopeCreatedAt": "2026-05-17T15:21:11.840Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "Тест сообщение",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-17T15:22:16.371Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T15:21:11.840Z",
+        "nonceHex": "ab44e7dff5b15b047a861bff58badc33",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "0KLQtdGB0YIg0YHQvtC+0LHRidC10L3QuNC1"
+        },
+        "signatureBase64": "MEUCIHi1XAlqsXn95ns8VCOd2UoWqdIfC60EO/H+xE9lu0vWAiEAzrvcaN5Uvv6aEWiv/LKNF5FnhtkYQMmAQxoi5Xm4O+I=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-17T15:24:06.786Z",
+      "createdAt": "2026-05-17T15:21:30.255Z"
+    },
+    {
+      "messageId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+      "envelopeId": "748223867614548534189004093f00d7ebea6bc212bbf6b62fe11e68a4c5f2af",
+      "envelopeCreatedAt": "2026-05-17T14:37:17.846Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "test",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-17T15:22:14.356Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T14:37:17.846Z",
+        "nonceHex": "f660b2c9241ae91084bde4cd6572c3d2",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "dGVzdA=="
+        },
+        "signatureBase64": "MEUCIQC+QI0+8HQ9ZuV7xLoVEBWdoD25XbsCn5G7App52cDR3AIgWjTbnsiKD+F3HkzwNNh/P89g6M47QrKUDbpuk5Ty3Ns=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-17T15:22:14.358Z",
+      "createdAt": "2026-05-17T15:21:30.298Z"
+    },
+    {
+      "messageId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+      "envelopeId": "1caaaa7e81b8df446d3316892c99b07db7482d2da72fc77cde2be45a775f89a9",
+      "envelopeCreatedAt": "2026-05-17T14:35:24.254Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "test",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-17T15:22:12.079Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T14:35:24.254Z",
+        "nonceHex": "99a59de0fc42b8eeb30ffaf7a9464ea0",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "dGVzdA=="
+        },
+        "signatureBase64": "MEYCIQCn0LIREEpYrs0QuOlIOJWN/cOFNqYhX6HfyeQ+OfpQ+gIhAOGraRoAWFsH2C7VT4v2azeYnsn6uv0DSNnL6R3bbSGb",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-17T15:22:12.081Z",
+      "createdAt": "2026-05-17T15:21:30.332Z"
+    },
+    {
+      "messageId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+      "envelopeId": "1df4e5f4461c44a0be0544cf7cd1c95683eb2ff4313fa2515b64c1da0032e72a",
+      "envelopeCreatedAt": "2026-05-17T14:21:48.904Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "Test message",
+      "sourceFilePath": "remote:sender",
+      "sourceAgent": "sender",
+      "relayName": "gateway-alpha",
+      "readAt": "2026-05-17T15:22:10.247Z",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T14:21:48.904Z",
+        "nonceHex": "60931fa1c7914e10c8834d8cd70b1807",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "VGVzdCBtZXNzYWdl"
+        },
+        "signatureBase64": "MEUCIQDfQEiKELMK39C0pCaDadqXIy7zJt7B8oyHNXE7anK4ZgIgCPKHIOyUlSBlwSeKwTxwx5usUtwcF4j04x5xQAL8utk=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-17T15:22:10.249Z",
+      "createdAt": "2026-05-17T15:21:30.360Z"
+    },
+    {
+      "messageId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+      "envelopeId": "a19fe667f6a7c619e33ac8c0e9d51df7c982eecf06ba12e0efc1831297af1955",
+      "envelopeCreatedAt": "2026-05-17T09:37:45.254Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": null,
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "final relay receipt ui",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:37:45.254Z",
+        "nonceHex": "554846a2022e5d0187b38a00df8e2b17",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": null,
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "ZmluYWwgcmVsYXkgcmVjZWlwdCB1aQ=="
+        },
+        "signatureBase64": "MEQCIGxuInpgUmLvX9kJ0YEMxcqK502l4o8soHvNYQQa1pESAiAGx5GxSo5yP+h3g4Y+Nkw1eNcDbAw5MfAcIy3z24TAvg==",
+        "locallyVerified": true,
+        "recipientKnown": false
+      },
+      "updatedAt": "2026-05-18T16:27:33.252Z",
+      "createdAt": "2026-05-17T09:37:47.545Z",
+      "readAt": "2026-05-18T16:27:33.251Z"
+    },
+    {
+      "messageId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+      "envelopeId": "3a9ea25041d0643688da75c8d4eefb58c08aa314180b94baa1cefb2554548947",
+      "envelopeCreatedAt": "2026-05-17T09:35:31.424Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": null,
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "relay receipt checkpoint",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:35:31.424Z",
+        "nonceHex": "b9a3e1426f12c390ea9a80d67302edff",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": null,
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "cmVsYXkgcmVjZWlwdCBjaGVja3BvaW50"
+        },
+        "signatureBase64": "MEUCIQDE+fZ/nxSlea/CpLh0CAOkzhAzAn31OgcPLacrkoF/sgIgbfu+fl+72sIlb0AHZG4IQNK7/V5VeCWn1WmaFS4glrU=",
+        "locallyVerified": true,
+        "recipientKnown": false
+      },
+      "updatedAt": "2026-05-18T16:27:51.450Z",
+      "createdAt": "2026-05-17T09:35:38.899Z",
+      "readAt": "2026-05-18T16:27:51.448Z"
+    },
+    {
+      "messageId": "3680c65a76eef944a4f8c88f01004f3973317c8256857d30123b0b1cddd0e8c8",
+      "envelopeId": "3680c65a76eef944a4f8c88f01004f3973317c8256857d30123b0b1cddd0e8c8",
+      "envelopeCreatedAt": "2026-05-17T09:26:09.454Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "How are you",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:26:09.454Z",
+        "nonceHex": "ed4bef987cd181c6d0c947ff207a781c",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "SG93IGFyZSB5b3U="
+        },
+        "signatureBase64": "MEUCIBg1pve7ohA6txIOLzeefal23+hAURoc/MM17AWe+5oDAiEAnV0FH1l/1SzQtZDXQr89UjOm9GDBqH7ad+59tSM2aOE=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-18T17:30:31.899Z",
+      "createdAt": "2026-05-17T09:26:21.745Z",
+      "readAt": "2026-05-18T17:30:31.897Z"
+    },
+    {
+      "messageId": "5d79126c04f6ec7662c151baebd5a260887dd64b6ca1c5517afd49def2c724b7",
+      "envelopeId": "5d79126c04f6ec7662c151baebd5a260887dd64b6ca1c5517afd49def2c724b7",
+      "envelopeCreatedAt": "2026-05-17T09:21:19.372Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "Hello",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:21:19.372Z",
+        "nonceHex": "f6d969fb3eb34b69aacb04047b3cb37a",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "SGVsbG8="
+        },
+        "signatureBase64": "MEUCIQC7eUlNvIuqkodhR0v78EIoEC2uEiTaun2ONa5UDIIIKQIgAhtn9EMf/AeKB3+QKCR7hlZs3m1TsBLfWrLCE3mTEIg=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-18T17:49:05.143Z",
+      "createdAt": "2026-05-17T09:24:45.088Z",
+      "readAt": "2026-05-18T17:49:05.141Z"
+    },
+    {
+      "messageId": "ca30f624bdf3a1a28a1f56459ed96f2c7f2f8809a8dfceb2b585672b72473aaf",
+      "envelopeId": "ca30f624bdf3a1a28a1f56459ed96f2c7f2f8809a8dfceb2b585672b72473aaf",
+      "envelopeCreatedAt": "2026-05-17T09:16:52.803Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": null,
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "remote identity source check",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:16:52.803Z",
+        "nonceHex": "f61a0536d8283d4facd3df0dea4e3747",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": null,
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "cmVtb3RlIGlkZW50aXR5IHNvdXJjZSBjaGVjaw=="
+        },
+        "signatureBase64": "MEQCIBcebBr+o/ebZ/4kv0SKa3PcLUVBtmeZ3uLfQoh8AdoHAiAse8Z5seiD5fc2p7F2aIjWUXciJE/mGsGLWaIR0pdM9w==",
+        "locallyVerified": true,
+        "recipientKnown": false
+      },
+      "updatedAt": "2026-05-18T17:49:07.003Z",
+      "createdAt": "2026-05-17T09:17:00.355Z",
+      "readAt": "2026-05-18T17:49:07.001Z"
+    },
+    {
+      "messageId": "271b4f6eab3668f0970529d9f8cfd7cf23702a3b5627d096e9b565b9ad0e3d95",
+      "envelopeId": "271b4f6eab3668f0970529d9f8cfd7cf23702a3b5627d096e9b565b9ad0e3d95",
+      "envelopeCreatedAt": "2026-05-17T09:15:04.077Z",
+      "direction": "inbound",
+      "senderKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKeyId": null,
+      "recipientOwned": false,
+      "verified": true,
+      "matchesEnvelopeIdentity": true,
+      "payloadType": "text/plain",
+      "textPreview": "sender to receiver checkpoint",
+      "sourceFilePath": "remote:sender",
+      "peerLabel": "imported-p256:58053fc",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T09:15:04.077Z",
+        "nonceHex": "81ecbd3134ea3857481d3f08072793c5",
+        "sender": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "fingerprintHex": "58053fcc15252d9a3df92de3e76ba7b3ac5fd50a9707c09d729a83bd4809c21f",
+          "publicKeyBase64": "BIuo+Uctg+Blv9CW+AM2ZVcxN1RVkxTduAvCVWaopPwQP683ZwiPgURQqS9kIktIaz2TxIl5Wgl55i8p30x4XLI="
+        },
+        "recipient": null,
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "c2VuZGVyIHRvIHJlY2VpdmVyIGNoZWNrcG9pbnQ="
+        },
+        "signatureBase64": "MEQCIEHFTEB6S2K+GZV4mO4cxfUgPjD1w6eDz0r2B/dsZ+RIAiAEtYHuw4bXfxQy41AgNbWCL/Saybyc+MedOLfe9PG+yQ==",
+        "locallyVerified": true,
+        "recipientKnown": false
+      },
+      "updatedAt": "2026-05-18T17:49:12.808Z",
+      "createdAt": "2026-05-17T09:15:16.019Z",
+      "readAt": "2026-05-18T17:49:12.807Z"
+    }
+  ]
+}

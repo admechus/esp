@@ -1,0 +1,4 @@
+tools/esp-env.local.ps1
+tools/runtime/
+agent/node_modules/
+agent/state/

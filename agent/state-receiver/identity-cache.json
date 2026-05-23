@@ -1,0 +1,8 @@
+{
+  "algorithm": "ES256",
+  "curve": "P-256",
+  "keyId": "p256:c641e2f4bd4a38bc",
+  "fingerprintHex": "c641e2f4bd4a38bc1bdab3186a1c9f9ead92b655a3361a375a6785c1b7f70789",
+  "publicKeyBase64": "BFvZm6QGbve3uoCAqvT62rbaEbNO3OGGHHgfODtIK/rx1Qs6YifdvushTnMn2XPp4hb7T6m3imhd3U4qv7ObUas=",
+  "cachedAt": "2026-05-21T21:05:13.323Z"
+}

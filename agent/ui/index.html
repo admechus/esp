@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP Messenger Agent</title>
+    <link rel="stylesheet" href="/ui/app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Local Agent Console</p>
+          <h1>ESP Messenger</h1>
+          <p class="hero-text">
+            Локальная панель управления аппаратными identity-узлами, доставкой через relay
+            и перепиской между независимыми ESP-агентами.
+          </p>
+          <dl class="hero-meta">
+            <div>
+              <dt>Агент</dt>
+              <dd id="agent-name">—</dd>
+            </div>
+            <div>
+              <dt>Транспорт</dt>
+              <dd id="agent-transport">—</dd>
+            </div>
+            <div class="span-2">
+              <dt>State dir</dt>
+              <dd id="agent-state-dir" class="mono">—</dd>
+            </div>
+            <div class="span-2">
+              <dt>Remote target</dt>
+              <dd id="agent-remote-url" class="mono">—</dd>
+            </div>
+            <div>
+              <dt>Target route</dt>
+              <dd id="agent-target-agent">—</dd>
+            </div>
+          </dl>
+        </div>
+        <div class="hero-actions">
+          <button id="refresh-all" class="button button-primary" type="button">Обновить всё</button>
+          <button id="remember-self" class="button button-secondary" type="button">Запомнить identity</button>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <section class="card identity-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Identity</p>
+              <h2>Активный токен</h2>
+            </div>
+            <span id="identity-status" class="status-pill">Загрузка</span>
+          </div>
+          <dl class="identity-grid">
+            <div>
+              <dt>Algorithm</dt>
+              <dd id="identity-algorithm">—</dd>
+            </div>
+            <div>
+              <dt>Curve</dt>
+              <dd id="identity-curve">—</dd>
+            </div>
+            <div class="span-2">
+              <dt>Key ID</dt>
+              <dd id="identity-key-id" class="mono">—</dd>
+            </div>
+            <div class="span-2">
+              <dt>Fingerprint</dt>
+              <dd id="identity-fingerprint" class="mono">—</dd>
+            </div>
+          </dl>
+          <p id="identity-error" class="inline-error hidden"></p>
+        </section>
+
+        <section class="card compose-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Compose</p>
+              <h2>Новое сообщение</h2>
+            </div>
+          </div>
+          <p id="compose-context" class="section-note">Загрузка диалогов…</p>
+          <form id="compose-form" class="compose-form">
+            <label>
+              <span>Получатель</span>
+              <select id="recipient-select">
+                <option value="">Без адресата</option>
+              </select>
+            </label>
+            <label>
+              <span>Текст</span>
+              <textarea id="compose-text" rows="5" placeholder="Напиши сообщение для локального envelope..."></textarea>
+            </label>
+            <label class="checkbox-row">
+              <input id="save-envelope" type="checkbox" checked>
+              <span>Сохранить в outbox</span>
+            </label>
+            <button id="compose-submit" class="button button-primary" type="submit">Подписать envelope</button>
+          </form>
+          <div id="compose-result" class="result-panel hidden"></div>
+        </section>
+
+        <section class="card peers-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Conversations</p>
+              <h2>Контакты и диалоги</h2>
+            </div>
+            <div class="card-actions">
+              <span id="peers-count" class="metric">0</span>
+              <button id="clear-conversation-filter" class="button button-secondary button-small" type="button">
+                Все диалоги
+              </button>
+            </div>
+          </div>
+          <div id="peers-list" class="stack-list empty-state">Контактов пока нет.</div>
+        </section>
+
+        <section class="card outbox-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Outbox</p>
+              <h2>Исходящие envelope</h2>
+            </div>
+            <span id="outbox-count" class="metric">0</span>
+          </div>
+          <p id="outbox-scope" class="section-note">Загрузка outbox…</p>
+          <div id="outbox-list" class="message-list empty-state">Исходящих сообщений пока нет.</div>
+        </section>
+
+        <section class="card inbox-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Inbox</p>
+              <h2>История сообщений</h2>
+            </div>
+            <span id="messages-count" class="metric">0</span>
+          </div>
+          <p id="messages-scope" class="section-note">Загрузка истории…</p>
+          <div id="messages-list" class="message-list empty-state">Сообщений пока нет.</div>
+          <div id="messages-result" class="result-panel hidden"></div>
+        </section>
+
+        <section class="card receipts-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Receipts</p>
+              <h2>Квитанции доставки и чтения</h2>
+            </div>
+            <span id="receipts-count" class="metric">0</span>
+          </div>
+          <div id="receipts-list" class="message-list empty-state">Квитанций пока нет.</div>
+        </section>
+
+        <section class="card transfer-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Transport</p>
+              <h2>Bundle export / import / remote delivery</h2>
+            </div>
+          </div>
+          <div class="transport-grid transport-grid-3">
+            <div class="transport-block">
+              <p class="transport-title">Экспорт pending outbox</p>
+              <p class="transport-copy">
+                Собирает сохранённые envelope в transport bundle для relay или gateway-слоя.
+              </p>
+              <p id="transport-sync-status" class="section-note">Синхронизация relay загружается…</p>
+              <button id="export-bundle" class="button button-secondary" type="button">Экспортировать bundle</button>
+              <button id="pull-relay" class="button button-secondary" type="button">Забрать pending из relay</button>
+            </div>
+            <form id="deliver-bundle-form" class="receive-form transport-block">
+              <label>
+                <span>Remote agent URL</span>
+                <input id="remote-url" type="text" placeholder="http://127.0.0.1:8790">
+              </label>
+              <label>
+                <span>Target agent</span>
+                <input id="target-agent" type="text" placeholder="receiver">
+              </label>
+              <button id="deliver-bundle" class="button button-primary" type="submit">Доставить на remote agent</button>
+            </form>
+            <form id="import-bundle-form" class="receive-form transport-block">
+              <label>
+                <span>Путь к bundle JSON</span>
+                <input id="bundle-path" type="text" placeholder="C:\path\to\bundle.json">
+              </label>
+              <button class="button button-primary" type="submit">Импортировать bundle</button>
+            </form>
+          </div>
+          <div id="transport-result" class="result-panel hidden"></div>
+          <details id="transport-history" class="history-details hidden">
+            <summary id="transport-history-summary">История transport-результатов</summary>
+            <div id="transport-history-list" class="history-list"></div>
+          </details>
+        </section>
+
+        <section class="card import-card">
+          <div class="card-header">
+            <div>
+              <p class="card-kicker">Receive</p>
+              <h2>Принять envelope из файла</h2>
+            </div>
+          </div>
+          <form id="receive-form" class="receive-form">
+            <label>
+              <span>Путь к JSON</span>
+              <input id="receive-path" type="text" placeholder="C:\path\to\envelope.json">
+            </label>
+            <button class="button button-secondary" type="submit">Проверить и принять</button>
+          </form>
+          <div id="receive-result" class="result-panel hidden"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/ui/app.js"></script>
+  </body>
+</html>

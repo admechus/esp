@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "messages": [
+    {
+      "messageId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+      "envelopeId": "998fdcbc10c92d466866ece0d93fe01577b390a9b811919df517a9e02bae826d",
+      "envelopeCreatedAt": "2026-05-17T19:46:32.380Z",
+      "status": "read_remote",
+      "senderKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+      "recipientKnown": true,
+      "locallyVerified": true,
+      "textPreview": "Nem message",
+      "sourceFilePath": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\outbox\\envelope-1779047193592.json",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T19:46:32.380Z",
+        "nonceHex": "328e7b34469c1f8b7de739b60e962e7b",
+        "sender": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "fingerprintHex": "c641e2f4bd4a38bc1bdab3186a1c9f9ead92b655a3361a375a6785c1b7f70789",
+          "publicKeyBase64": "BFvZm6QGbve3uoCAqvT62rbaEbNO3OGGHHgfODtIK/rx1Qs6YifdvushTnMn2XPp4hb7T6m3imhd3U4qv7ObUas="
+        },
+        "recipient": {
+          "keyId": "p256:58053fcc15252d9a3df92de3e76ba7b3"
+        },
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "TmVtIG1lc3NhZ2U="
+        },
+        "signatureBase64": "MEUCIGmE0fJy3+ZR9gZIQjpumjIv25BsY2sfDEtUUW2lnos4AiEAoRez65BdCp9r9VlMj6qOFzLPIpxZuwDqtDxkj5Yt6Lk=",
+        "locallyVerified": true,
+        "recipientKnown": true
+      },
+      "updatedAt": "2026-05-17T19:47:10.866Z",
+      "createdAt": "2026-05-17T19:46:33.598Z",
+      "deliveredAt": "2026-05-17T19:46:44.072Z",
+      "deliverySource": "http://127.0.0.1:8790",
+      "remoteAgent": "sender",
+      "deliveryReceiptId": "receipt:00a352544844273e73407b854817a4c3",
+      "deliveryAcceptedAt": "2026-05-17T19:46:44.038Z",
+      "readReceiptId": "receipt:f14400b7a9556b0517b9288a21adfe26",
+      "readAt": "2026-05-17T19:47:10.832Z",
+      "relayReceiptId": "relay:a555c76c14d55ab7acac0584fb446cab"
+    },
+    {
+      "messageId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+      "envelopeId": "7841e033d38bd3526d7e6d94836c72bb070ffe0b2eacaedb6bf3712b3a708c48",
+      "envelopeCreatedAt": "2026-05-17T10:10:05.963Z",
+      "status": "read_remote",
+      "senderKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+      "recipientKeyId": null,
+      "recipientKnown": false,
+      "locallyVerified": true,
+      "textPreview": "hardware receiver reply over COM8",
+      "sourceFilePath": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\outbox\\envelope-1779012607251.json",
+      "envelope": {
+        "version": 1,
+        "kind": "signed-envelope",
+        "algorithm": "ES256",
+        "curve": "P-256",
+        "createdAt": "2026-05-17T10:10:05.963Z",
+        "nonceHex": "d2e207d79b2f360fab5044b51f89bc7f",
+        "sender": {
+          "keyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "fingerprintHex": "c641e2f4bd4a38bc1bdab3186a1c9f9ead92b655a3361a375a6785c1b7f70789",
+          "publicKeyBase64": "BFvZm6QGbve3uoCAqvT62rbaEbNO3OGGHHgfODtIK/rx1Qs6YifdvushTnMn2XPp4hb7T6m3imhd3U4qv7ObUas="
+        },
+        "recipient": null,
+        "payload": {
+          "type": "text/plain",
+          "encoding": "utf8",
+          "bodyBase64": "aGFyZHdhcmUgcmVjZWl2ZXIgcmVwbHkgb3ZlciBDT004"
+        },
+        "signatureBase64": "MEUCIEyIrWFJoC0MDLEgCL9CkTc2fWfHaPDXiWu42takozPaAiEAp+OESyQGlY/BJq7XPvbfmcjg07+zqVdmM79O7PsQFLw=",
+        "locallyVerified": true,
+        "recipientKnown": false
+      },
+      "updatedAt": "2026-05-18T17:49:19.984Z",
+      "createdAt": "2026-05-17T10:10:07.255Z",
+      "deliveredAt": "2026-05-17T10:10:08.301Z",
+      "deliverySource": "http://127.0.0.1:8790",
+      "remoteAgent": "sender",
+      "deliveryReceiptId": "receipt:3a3e37b3f4e0ac655e08103a9bca78e2",
+      "deliveryAcceptedAt": "2026-05-17T10:10:08.254Z",
+      "relayReceiptId": "relay:8efcdfeb3ae0af713f69893dfb5f4b27",
+      "readReceiptId": "receipt:1df11b718a56916053c5a876b6f59e4d",
+      "readAt": "2026-05-18T17:49:19.966Z"
+    }
+  ]
+}

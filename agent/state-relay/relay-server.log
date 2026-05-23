@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "service": "esp-messenger-relay",
+  "relay": {
+    "name": "gateway-alpha",
+    "routes": [
+      "receiver=http://127.0.0.1:8788"
+    ],
+    "stateDir": ".\\agent\\state-relay"
+  },
+  "host": "127.0.0.1",
+  "port": 8790
+}

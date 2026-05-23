@@ -1,0 +1,15 @@
+{
+  "name": "esp-messenger-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PC-side agent scaffold for the ESP messenger prototype.",
+  "scripts": {
+    "list-ports": "node ./src/cli.js list-ports",
+    "list-profiles": "node ./src/cli.js list-profiles",
+    "ping:mock": "node ./src/cli.js ping --mock",
+    "info:mock": "node ./src/cli.js info --mock",
+    "serve:mock": "node ./src/cli.js serve --mock",
+    "serve:unified:attached": "node ./src/cli.js serve-unified --listen 8795 --sender-url http://127.0.0.1:8787 --receiver-url http://127.0.0.1:8788 --relay-url http://127.0.0.1:8790"
+  }
+}

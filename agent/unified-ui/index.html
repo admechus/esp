@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP Messenger Unified Client</title>
+    <link rel="stylesheet" href="/ui/app.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <p class="eyebrow">Unified Client</p>
+          <h1>ESP Messenger Shell</h1>
+          <p class="sidebar-text">
+            One control surface for chats, hardware identities, relay flow, and diagnostics.
+          </p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <button id="nav-chats" class="nav-item active" type="button" data-section="chats">
+            <span>Chats</span>
+            <strong id="nav-chats-badge">0</strong>
+          </button>
+          <button id="nav-identities" class="nav-item" type="button" data-section="identities">
+            <span>Identities</span>
+            <strong id="nav-identities-badge">2</strong>
+          </button>
+          <button id="nav-relay" class="nav-item" type="button" data-section="relay">
+            <span>Relay</span>
+            <strong id="nav-relay-badge">0</strong>
+          </button>
+          <button id="nav-activity" class="nav-item" type="button" data-section="activity">
+            <span>Activity</span>
+            <strong id="nav-activity-badge">0</strong>
+          </button>
+          <button id="nav-diagnostics" class="nav-item" type="button" data-section="diagnostics">
+            <span>Diagnostics</span>
+            <strong id="nav-diagnostics-badge">3</strong>
+          </button>
+        </nav>
+
+        <div class="sidebar-status">
+          <div class="sidebar-stat">
+            <span class="sidebar-label">Shell</span>
+            <strong id="shell-name">-</strong>
+          </div>
+          <div class="sidebar-stat">
+            <span class="sidebar-label">Mode</span>
+            <strong id="shell-mode">-</strong>
+          </div>
+          <div class="sidebar-stat sidebar-stat-wide">
+            <span class="sidebar-label">Known ESP Ports</span>
+            <strong id="shell-ports">-</strong>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="card-kicker">Workspace</p>
+            <h2 id="workspace-title">Chats</h2>
+            <p id="workspace-subtitle" class="workspace-subtitle">Unified conversation view across sender and receiver roles.</p>
+          </div>
+          <div class="topbar-actions">
+            <div class="topbar-url mono" id="shell-url">-</div>
+            <button id="refresh-all" class="button button-primary" type="button">Refresh All</button>
+          </div>
+        </header>
+
+        <section id="panel-chats" class="panel active">
+          <div class="panel-grid chats-grid">
+            <section class="card chat-sidebar-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Dialogs</p>
+                  <h2>Conversation List</h2>
+                </div>
+              </div>
+              <div class="toolbar-row">
+                <label class="compact-field">
+                  <span>Search</span>
+                  <input id="conversation-search" type="text" placeholder="Search dialogs or preview text">
+                </label>
+                <label class="compact-field">
+                  <span>Sort</span>
+                  <select id="conversation-sort">
+                    <option value="recent">Latest</option>
+                    <option value="unread">Unread first</option>
+                    <option value="name">Name</option>
+                  </select>
+                </label>
+              </div>
+              <div id="conversation-filters" class="filter-list empty-state">Loading conversations...</div>
+              <div class="filter-meta">
+                <span id="active-conversation-title">All conversations</span>
+                <span id="active-conversation-meta">Unified cross-role timeline</span>
+              </div>
+            </section>
+
+            <section class="card chat-main-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Chat</p>
+                  <h2>Conversation Workspace</h2>
+                </div>
+              </div>
+              <div class="chat-header-shell">
+                <div class="chat-header-copy">
+                  <span class="workspace-label">Selected dialog</span>
+                  <h3 id="selected-chat-title">All conversations</h3>
+                  <p id="selected-chat-meta" class="workspace-subtitle">Unified cross-role timeline</p>
+                  <p id="selected-chat-participants" class="chat-participants mono">-</p>
+                </div>
+                <div class="chat-header-actions">
+                  <button id="chat-open-identities" class="button button-secondary button-small" type="button">Open Identities</button>
+                  <button id="chat-open-relay" class="button button-secondary button-small" type="button">Open Relay</button>
+                  <button id="chat-pull-route" class="button button-secondary button-small" type="button">Pull Route Queue</button>
+                </div>
+              </div>
+              <div class="workspace-meta">
+                <div>
+                  <span class="workspace-label">Active conversation</span>
+                  <strong id="composer-conversation-title">All conversations</strong>
+                </div>
+                <div>
+                  <span class="workspace-label">Route</span>
+                  <strong id="composer-route-summary">sender -> receiver</strong>
+                </div>
+              </div>
+              <div class="role-toggle" id="composer-role-toggle">
+                <button id="composer-role-sender" class="button button-secondary button-small active" type="button">Send as Sender</button>
+                <button id="composer-role-receiver" class="button button-secondary button-small" type="button">Send as Receiver</button>
+              </div>
+              <form id="composer-send-form" class="compose-form">
+                <label>
+                  <span>Text</span>
+                  <textarea id="composer-send-text" rows="4" placeholder="Write into the selected conversation"></textarea>
+                </label>
+                <button id="composer-send-button" class="button button-primary" type="submit">Send From Sender</button>
+              </form>
+              <div id="composer-send-result" class="result-panel hidden"></div>
+              <div id="conversation-list" class="message-list empty-state">Loading timeline...</div>
+            </section>
+          </div>
+        </section>
+
+        <section id="panel-identities" class="panel hidden">
+          <div class="panel-grid identities-grid">
+            <section class="card service-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Sender</p>
+                  <h2>Primary Identity</h2>
+                </div>
+                <span id="sender-status" class="status-pill">Loading</span>
+              </div>
+              <dl class="identity-grid">
+                <div>
+                  <dt>Transport</dt>
+                  <dd id="sender-transport">-</dd>
+                </div>
+                <div>
+                  <dt>Identity</dt>
+                  <dd id="sender-key-id" class="mono">-</dd>
+                </div>
+                <div>
+                  <dt>Outbox</dt>
+                  <dd id="sender-outbox-count">0</dd>
+                </div>
+                <div>
+                  <dt>Receipts</dt>
+                  <dd id="sender-receipts-count">0</dd>
+                </div>
+              </dl>
+              <div class="service-actions">
+                <a id="sender-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Sender</a>
+              </div>
+            </section>
+
+            <section class="card service-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Receiver</p>
+                  <h2>Secondary Identity</h2>
+                </div>
+                <span id="receiver-status" class="status-pill">Loading</span>
+              </div>
+              <dl class="identity-grid">
+                <div>
+                  <dt>Transport</dt>
+                  <dd id="receiver-transport">-</dd>
+                </div>
+                <div>
+                  <dt>Identity</dt>
+                  <dd id="receiver-key-id" class="mono">-</dd>
+                </div>
+                <div>
+                  <dt>Inbox</dt>
+                  <dd id="receiver-inbox-count">0</dd>
+                </div>
+                <div>
+                  <dt>Receipts</dt>
+                  <dd id="receiver-receipts-count">0</dd>
+                </div>
+              </dl>
+              <div class="service-actions">
+                <a id="receiver-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Receiver</a>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="panel-relay" class="panel hidden">
+          <div class="panel-grid relay-grid">
+            <section class="card relay-card relay-summary-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Relay</p>
+                  <h2>Gateway Layer</h2>
+                </div>
+                <span id="relay-status" class="status-pill">Loading</span>
+              </div>
+              <dl class="identity-grid">
+                <div>
+                  <dt>Name</dt>
+                  <dd id="relay-name">-</dd>
+                </div>
+                <div>
+                  <dt>Transfers</dt>
+                  <dd id="relay-transfer-count">0</dd>
+                </div>
+                <div class="span-2">
+                  <dt>Pending Queue</dt>
+                  <dd id="relay-queue-count">0</dd>
+                </div>
+              </dl>
+              <div class="service-actions">
+                <a id="relay-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Relay</a>
+              </div>
+            </section>
+
+            <section class="card relay-queue-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Queue Control</p>
+                  <h2>Relay Recovery</h2>
+                </div>
+              </div>
+              <div class="service-actions">
+                <button id="pull-sender" class="button button-secondary button-small" type="button">Pull Sender Queue</button>
+                <button id="pull-receiver" class="button button-secondary button-small" type="button">Pull Receiver Queue</button>
+              </div>
+              <div id="relay-queue-result" class="result-panel hidden"></div>
+              <div id="relay-queue-list" class="message-list empty-state">Loading relay queue...</div>
+            </section>
+          </div>
+        </section>
+
+        <section id="panel-activity" class="panel hidden">
+          <div class="panel-grid activity-grid">
+            <section class="card activity-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Recent Outbox</p>
+                  <h2>Latest Sender Outbox</h2>
+                </div>
+              </div>
+              <div id="outbox-list" class="message-list empty-state">Loading outbox...</div>
+            </section>
+
+            <section class="card activity-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Recent Inbox</p>
+                  <h2>Latest Receiver Inbox</h2>
+                </div>
+              </div>
+              <div id="inbox-list" class="message-list empty-state">Loading inbox...</div>
+            </section>
+
+            <section class="card activity-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Receipts</p>
+                  <h2>Latest Sender Receipts</h2>
+                </div>
+              </div>
+              <div id="receipts-list" class="message-list empty-state">Loading receipts...</div>
+            </section>
+
+            <section class="card activity-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Shell</p>
+                  <h2>Shell Activity Log</h2>
+                </div>
+              </div>
+              <div id="hardware-activity-list" class="message-list empty-state">Loading shell activity...</div>
+            </section>
+          </div>
+        </section>
+
+        <section id="panel-diagnostics" class="panel hidden">
+          <div class="panel-grid diagnostics-grid">
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Shell</p>
+                  <h2>Diagnostics Overview</h2>
+                </div>
+              </div>
+              <dl class="hero-meta">
+                <div>
+                  <dt>Shell</dt>
+                  <dd id="diag-shell-name">-</dd>
+                </div>
+                <div>
+                  <dt>Mode</dt>
+                  <dd id="diag-shell-mode">-</dd>
+                </div>
+                <div class="span-2">
+                  <dt>Unified URL</dt>
+                  <dd id="diag-shell-url" class="mono">-</dd>
+                </div>
+                <div class="span-2">
+                  <dt>Known ESP Ports</dt>
+                  <dd id="diag-shell-ports">-</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Roles</p>
+                  <h2>Role Map</h2>
+                </div>
+              </div>
+              <div id="role-map-list" class="message-list empty-state">Loading role map...</div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Lifecycle</p>
+                  <h2>Route Controls</h2>
+                </div>
+              </div>
+              <div class="service-actions diagnostics-links">
+                <button id="diag-pull-all" class="button button-secondary button-small" type="button">Pull All Routes</button>
+                <button id="diag-refresh-discovery" class="button button-secondary button-small" type="button">Refresh Discovery</button>
+                <button id="diag-toggle-discovery-auto" class="button button-secondary button-small" type="button">Auto Refresh: Off</button>
+                <button id="diag-apply-bindings" class="button button-secondary button-small" type="button">Apply Planned Roles</button>
+                <button id="diag-adopt-live-bindings" class="button button-secondary button-small" type="button">Adopt Live Roles</button>
+                <button id="diag-reconcile-live-state" class="button button-secondary button-small" type="button">Reconcile To Live</button>
+                <button id="diag-clear-conflicting-bindings" class="button button-secondary button-small" type="button">Clear Conflicts</button>
+                <button id="diag-clear-applied-plan" class="button button-secondary button-small" type="button">Clear Applied Plan</button>
+                <button id="diag-open-chats" class="button button-secondary button-small" type="button">Go to Chats</button>
+                <button id="diag-open-relay" class="button button-secondary button-small" type="button">Go to Relay</button>
+              </div>
+              <div id="diag-lifecycle-result" class="result-panel hidden"></div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Applied Plan</p>
+                  <h2>Lifecycle Plan</h2>
+                </div>
+              </div>
+              <div id="lifecycle-plan-list" class="message-list empty-state">No applied lifecycle plan yet.</div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Discovery</p>
+                  <h2>Discovery Snapshot</h2>
+                </div>
+              </div>
+              <div id="discovery-summary" class="message-list empty-state">Loading discovery summary...</div>
+              <div id="discovery-candidates" class="message-list empty-state">Loading discovery candidates...</div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Binding Hints</p>
+                  <h2>Suggested Role Assignments</h2>
+                </div>
+              </div>
+              <div id="binding-hints-list" class="message-list empty-state">Loading binding hints...</div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">History</p>
+                  <h2>Discovery History</h2>
+                </div>
+              </div>
+              <div id="discovery-history-list" class="message-list empty-state">Loading discovery history...</div>
+            </section>
+
+            <section class="card diagnostics-card">
+              <div class="card-header">
+                <div>
+                  <p class="card-kicker">Links</p>
+                  <h2>Role Consoles</h2>
+                </div>
+              </div>
+              <div class="service-actions diagnostics-links">
+                <a id="diag-sender-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Sender</a>
+                <a id="diag-receiver-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Receiver</a>
+                <a id="diag-relay-link" class="button button-secondary button-small" href="#" target="_blank" rel="noreferrer">Open Relay</a>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/ui/app.js"></script>
+  </body>
+</html>

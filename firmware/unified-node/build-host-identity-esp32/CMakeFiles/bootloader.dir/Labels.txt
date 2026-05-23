@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+D:/esp/firmware/unified-node/build-host-identity-esp32/CMakeFiles/bootloader
+D:/esp/firmware/unified-node/build-host-identity-esp32/CMakeFiles/bootloader.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/CMakeFiles/bootloader-complete.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/esp/firmware/unified-node/build-host-identity-esp32/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

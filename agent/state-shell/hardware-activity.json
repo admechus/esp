@@ -1,0 +1,325 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "hw:mpfzbwbb:aa000e2a",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "receiver",
+      "target": "oled",
+      "status": "ok",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-21T21:05:02.807Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "oled",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpfzbo7u:ee632fdf",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "node COM7",
+      "target": "all",
+      "status": "skipped",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.) | display:skipped (Display output is not part of the host-identity-esp32 board profile.) | rgb-led:skipped (RGB LED output is not part of the host-identity-esp32 board profile.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-21T21:04:52.314Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "all",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          },
+          {
+            "kind": "display",
+            "status": "skipped",
+            "detail": "Display output is not part of the host-identity-esp32 board profile."
+          },
+          {
+            "kind": "rgb-led",
+            "status": "skipped",
+            "detail": "RGB LED output is not part of the host-identity-esp32 board profile."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpfzbkow:5170b4df",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "node COM7",
+      "target": "oled",
+      "status": "ok",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-21T21:04:47.744Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "oled",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpfzbgfz:508863b9",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "node COM7",
+      "target": "display",
+      "status": "skipped",
+      "detail": "display:skipped (Display output is not part of the host-identity-esp32 board profile.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-21T21:04:42.239Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "display",
+        "results": [
+          {
+            "kind": "display",
+            "status": "skipped",
+            "detail": "Display output is not part of the host-identity-esp32 board profile."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpfzbb91:6e6eb3ab",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "node COM7",
+      "target": "display",
+      "status": "skipped",
+      "detail": "display:skipped (Display output is not part of the host-identity-esp32 board profile.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-21T21:04:35.509Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "display",
+        "results": [
+          {
+            "kind": "display",
+            "status": "skipped",
+            "detail": "Display output is not part of the host-identity-esp32 board profile."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpebb78g:a973f278",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "receiver",
+      "target": "oled",
+      "status": "ok",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T17:04:53.344Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "oled",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpeb3x7o:5daf5c8c",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "sender",
+      "target": "all",
+      "status": "skipped",
+      "detail": "display:ok (ST7735 display reset, initialized, filled with RGB plus white, and backlight swept from dim to full brightness.) | rgb-led:ok (APA102 RGB LED cycled red, green, blue, then off.) | oled:skipped (OLED output is not part of the tdongle-s3 board profile.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:59:13.764Z",
+      "data": {
+        "device": "lilygo-t-dongle-s3",
+        "chip": "esp32s3",
+        "profile": "identity-token",
+        "transport": "usb-serial-jtag",
+        "target": "all",
+        "results": [
+          {
+            "kind": "display",
+            "status": "ok",
+            "detail": "ST7735 display reset, initialized, filled with RGB plus white, and backlight swept from dim to full brightness."
+          },
+          {
+            "kind": "rgb-led",
+            "status": "ok",
+            "detail": "APA102 RGB LED cycled red, green, blue, then off."
+          },
+          {
+            "kind": "oled",
+            "status": "skipped",
+            "detail": "OLED output is not part of the tdongle-s3 board profile."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpeb3rqs:c8a905ef",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "sender",
+      "target": "rgb-led",
+      "status": "ok",
+      "detail": "rgb-led:ok (APA102 RGB LED cycled red, green, blue, then off.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:59:06.676Z",
+      "data": {
+        "device": "lilygo-t-dongle-s3",
+        "chip": "esp32s3",
+        "profile": "identity-token",
+        "transport": "usb-serial-jtag",
+        "target": "rgb-led",
+        "results": [
+          {
+            "kind": "rgb-led",
+            "status": "ok",
+            "detail": "APA102 RGB LED cycled red, green, blue, then off."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpeb3mh3:d34ed431",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "sender",
+      "target": "display",
+      "status": "ok",
+      "detail": "display:ok (ST7735 display reset, initialized, filled with RGB plus white, and backlight swept from dim to full brightness.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:58:59.847Z",
+      "data": {
+        "device": "lilygo-t-dongle-s3",
+        "chip": "esp32s3",
+        "profile": "identity-token",
+        "transport": "usb-serial-jtag",
+        "target": "display",
+        "results": [
+          {
+            "kind": "display",
+            "status": "ok",
+            "detail": "ST7735 display reset, initialized, filled with RGB plus white, and backlight swept from dim to full brightness."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpeb3ghw:ec36790f",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "receiver",
+      "target": "oled",
+      "status": "ok",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:58:52.100Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "oled",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpeb368t:27d2184c",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "receiver",
+      "target": "oled",
+      "status": "ok",
+      "detail": "oled:ok (SSD1306-compatible OLED initialized and loaded with a stripe test pattern.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:58:38.813Z",
+      "data": {
+        "device": "esp32-host-identity",
+        "chip": "esp32",
+        "profile": "host-attached-node",
+        "transport": "uart0",
+        "target": "oled",
+        "results": [
+          {
+            "kind": "oled",
+            "status": "ok",
+            "detail": "SSD1306-compatible OLED initialized and loaded with a stripe test pattern."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hw:mpe9exrb:4c170442",
+      "category": "hardware",
+      "action": "test-output",
+      "role": "sender",
+      "target": "rgb-led",
+      "status": "ok",
+      "detail": "rgb-led:ok (APA102 RGB LED cycled red, green, blue, then off.)",
+      "source": "unified-shell",
+      "createdAt": "2026-05-20T16:11:48.456Z",
+      "data": {
+        "device": "lilygo-t-dongle-s3",
+        "chip": "esp32s3",
+        "profile": "identity-token",
+        "transport": "usb-serial-jtag",
+        "target": "rgb-led",
+        "results": [
+          {
+            "kind": "rgb-led",
+            "status": "ok",
+            "detail": "APA102 RGB LED cycled red, green, blue, then off."
+          }
+        ]
+      }
+    }
+  ]
+}

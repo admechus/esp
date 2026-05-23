@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "service": "esp-messenger-agent",
+  "agent": {
+    "name": "receiver",
+    "stateDir": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver",
+    "peersFile": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\peers.json",
+    "inboxFile": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\inbox.json",
+    "outboxFile": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\outbox-log.json",
+    "receiptsFile": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\receipts.json",
+    "outboxDir": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\outbox",
+    "transfersDir": "C:\\Users\\Keal\\Documents\\Codex\\2026-05-14\\esp\\agent\\state-receiver\\transfers"
+  },
+  "host": "127.0.0.1",
+  "port": 8788,
+  "transport": null,
+  "remoteUrl": null
+}

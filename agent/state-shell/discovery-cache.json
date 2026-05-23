@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "snapshots": [
+    {
+      "generatedAt": "2026-05-18T18:59:35.301Z",
+      "shellName": "lab-shell",
+      "mode": "attached",
+      "summary": {
+        "localPorts": 3,
+        "liveRoles": 3,
+        "candidateCount": 1,
+        "linkCount": 6
+      },
+      "nodes": [
+        {
+          "id": "role:sender",
+          "type": "agent",
+          "role": "sender",
+          "mode": "attached",
+          "transport": "COM9",
+          "ok": true,
+          "baseUrl": "http://127.0.0.1:8787",
+          "identityKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3"
+        },
+        {
+          "id": "role:receiver",
+          "type": "agent",
+          "role": "receiver",
+          "mode": "attached",
+          "transport": "COM8",
+          "ok": true,
+          "baseUrl": "http://127.0.0.1:8788",
+          "identityKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e"
+        },
+        {
+          "id": "role:relay",
+          "type": "relay",
+          "role": "gateway-alpha",
+          "mode": "attached",
+          "transport": "http",
+          "ok": true,
+          "baseUrl": "http://127.0.0.1:8790",
+          "identityKeyId": null
+        },
+        {
+          "id": "port:COM8",
+          "type": "local-port",
+          "role": "assigned-port",
+          "mode": "attached",
+          "transport": "COM8",
+          "ok": true,
+          "friendlyName": "Silicon Labs CP210x USB to UART Bridge (COM8)",
+          "kind": "cp210x-uart"
+        },
+        {
+          "id": "port:COM9",
+          "type": "local-port",
+          "role": "assigned-port",
+          "mode": "attached",
+          "transport": "COM9",
+          "ok": true,
+          "friendlyName": "USB JTAG/serial debug unit (Interface 0) (COM9)",
+          "kind": "espressif-usb"
+        },
+        {
+          "id": "port:COM7",
+          "type": "local-port",
+          "role": "candidate-port",
+          "mode": "attached",
+          "transport": "COM7",
+          "ok": true,
+          "friendlyName": "USB-SERIAL CH340 (COM7)",
+          "kind": "ch340-uart"
+        },
+        {
+          "id": "peer:p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "type": "peer",
+          "role": "identity",
+          "mode": "discovered",
+          "transport": null,
+          "ok": true,
+          "identityKeyId": "p256:58053fcc15252d9a3df92de3e76ba7b3",
+          "label": "local-dongle",
+          "source": "sender"
+        },
+        {
+          "id": "peer:p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "type": "peer",
+          "role": "peer",
+          "mode": "discovered",
+          "transport": null,
+          "ok": true,
+          "identityKeyId": "p256:c641e2f4bd4a38bc1bdab3186a1c9f9e",
+          "label": "imported-p256:c641e2f",
+          "source": "sender"
+        }
+      ],
+      "links": [
+        {
+          "source": "port:COM9",
+          "target": "role:sender",
+          "kind": "attached_transport"
+        },
+        {
+          "source": "role:sender",
+          "target": "role:receiver",
+          "kind": "configured_route",
+          "via": "http://127.0.0.1:8790"
+        },
+        {
+          "source": "port:COM8",
+          "target": "role:receiver",
+          "kind": "attached_transport"
+        },
+        {
+          "source": "role:receiver",
+          "target": "role:sender",
+          "kind": "configured_route",
+          "via": "http://127.0.0.1:8790"
+        },
+        {
+          "source": "role:relay",
+          "target": "role:receiver",
+          "kind": "relay_route",
+          "via": "http://127.0.0.1:8788"
+        },
+        {
+          "source": "role:relay",
+          "target": "role:sender",
+          "kind": "relay_route",
+          "via": "http://127.0.0.1:8787"
+        }
+      ],
+      "candidates": [
+        {
+          "id": "candidate:COM7",
+          "kind": "unassigned-port",
+          "label": "USB-SERIAL CH340 (COM7)",
+          "port": "COM7",
+          "hint": "Available for future role binding."
+        }
+      ]
+    }
+  ]
+}
