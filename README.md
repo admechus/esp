@@ -1,4 +1,4 @@
-# ESP Messenger Prototype
+﻿# ESP Messenger Prototype
 
 This repository is the starting point for an experimental messenger built around ESP-based hardware identities, gateway nodes, and future swarm-capable peer structures.
 
@@ -194,3 +194,12 @@ Build on the finished identity-token base before any mesh work:
 Project-local ESP environment helpers live in [tools/README.md](C:/Users/Keal/Documents/Codex/2026-05-14/esp/tools/README.md).
 
 For day-to-day lab work, the full local stack can now be managed through [tools/lab-stack.ps1](C:/Users/Keal/Documents/Codex/2026-05-14/esp/tools/lab-stack.ps1), including `sender`, `receiver`, `relay`, and the unified shell.
+
+
+## Architecture docs
+
+- [docs/index.md](./docs/index.md)
+- [docs/adr/](./docs/adr)
+- [docs/protocol/](./docs/protocol)
+- [docs/tasks/](./docs/tasks)
+
