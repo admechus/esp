@@ -1,4 +1,4 @@
-import { basename, resolve } from "node:path";
+﻿import { basename, resolve } from "node:path";
 import { getPlatformProfiles } from "../platform/platformProfiles.js";
 import { createRequest } from "../protocol/commands.js";
 import {
@@ -780,7 +780,7 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
         receipt: localReceipt,
         forwarded: true,
         targetAgent,
-        remoteUrl: normalizedRemoteUrl,
+        remoteUrl: deliveryResult.remoteUrl,
         relay: forwardPayload?.relay ?? null,
         remoteAgent: forwardPayload?.agent ?? forwardPayload?.result?.agent ?? null
       };
@@ -789,7 +789,7 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       const filePath = resolveTransferPath(options.filePath, statePaths);
       const { bundle, pendingMessages } = await this.createPendingTransportBundle(options);
 
-      await writeJsonFile(filePath, bundle);
+      await fileBundleTransport.exportBundle({ filePath, bundle });
 
       for (const message of pendingMessages) {
         await outboxStore.upsertMessage({
@@ -856,7 +856,8 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     },
     async importTransportBundle(filePath, options = {}) {
       const resolvedPath = resolve(filePath);
-      const bundle = await readJsonFile(resolvedPath);
+      const imported = await fileBundleTransport.importBundle({ filePath: resolvedPath });
+      const bundle = imported.bundle;
       const result = await this.importTransportBundleData(bundle, options, {
         sourceFilePath: resolvedPath,
         sourceLabel: `bundle:${basename(resolvedPath)}`,
@@ -872,21 +873,16 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
       const { bundle, pendingMessages } = await this.createPendingTransportBundle(options);
       const targetAgent = options.targetAgent ?? null;
-      const deliveryEndpoint = targetAgent ? `${normalizedRemoteUrl}/relay/deliver` : `${normalizedRemoteUrl}/transport/accept-bundle`;
-      const deliveryBody = targetAgent ? { bundle, targetAgent } : { bundle };
-      const response = await fetch(deliveryEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(deliveryBody)
+      const transport = targetAgent ? localHttpRelayTransport : localHttpAgentTransport;
+      const deliveryResult = await transport.sendBundle({
+        target: targetAgent,
+        bundle,
+        options: {
+          remoteUrl: normalizedRemoteUrl
+        }
       });
 
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Remote delivery failed: ${response.status}`);
-      }
-
+      const payload = deliveryResult.payload;
       const remoteAgentInfo = payload?.agent ?? payload?.relay ?? null;
       const downstreamReceipts = payload?.result?.receipts ?? payload?.result?.downstream?.receipts ?? [];
       const relayReceiptId = payload?.result?.relayReceiptId ?? null;
@@ -920,7 +916,7 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       }
 
       return {
-        remoteUrl: normalizedRemoteUrl,
+        remoteUrl: deliveryResult.remoteUrl,
         remoteAgent: remoteAgentInfo,
         messageCount: bundle.messages.length,
         accepted: payload?.result?.accepted ?? [],
@@ -936,24 +932,18 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     },
     async pullPendingFromRelay(remoteUrl, options = {}) {
       const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
-      const response = await fetch(`${normalizedRemoteUrl}/relay/pull`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          targetAgent: options.pullTargetAgent ?? resolvedAgentName
-        })
+      const targetAgent = options.pullTargetAgent ?? resolvedAgentName;
+      const pullResult = await localHttpRelayTransport.pullQueued({
+        target: targetAgent,
+        options: {
+          remoteUrl: normalizedRemoteUrl
+        }
       });
-
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Relay pull failed: ${response.status}`);
-      }
+      const payload = pullResult.payload;
 
       return {
-        remoteUrl: normalizedRemoteUrl,
-        targetAgent: options.pullTargetAgent ?? resolvedAgentName,
+        remoteUrl: pullResult.remoteUrl,
+        targetAgent,
         pulledCount: payload?.result?.pulledCount ?? 0,
         deliveredCount: payload?.result?.deliveredCount ?? 0,
         failedCount: payload?.result?.failedCount ?? 0,
@@ -994,3 +984,5 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     }
   };
 }
+
+
