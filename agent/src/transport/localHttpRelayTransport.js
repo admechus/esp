@@ -1,11 +1,5 @@
-﻿function normalizeRemoteUrl(remoteUrl) {
-  if (!remoteUrl) {
-    throw new Error("Missing remoteUrl for relay transport.");
-  }
-
-  const url = new URL(remoteUrl);
-  return url.toString().replace(/\/+$/g, "");
-}
+import { assertTransportOk, parseTransportJson } from "./transportErrors.js";
+import { normalizeRemoteUrl } from "./transportUrl.js";
 
 export function createLocalHttpRelayTransport() {
   return {
@@ -13,19 +7,23 @@ export function createLocalHttpRelayTransport() {
     kind: "local-http-relay",
     capabilities: ["send-bundle", "pull-queued", "list-routes", "list-queue", "health"],
     async health({ remoteUrl }) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        remoteUrl,
+        "Missing remoteUrl for relay transport."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/health`);
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Relay transport health failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Relay transport health failed: ${status}`);
       return {
         remoteUrl: normalizedRemoteUrl,
         payload
       };
     },
     async sendBundle({ target, bundle, options = {} }) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(options.remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        options.remoteUrl,
+        "Missing remoteUrl for relay transport."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/relay/deliver`, {
         method: "POST",
         headers: {
@@ -37,10 +35,8 @@ export function createLocalHttpRelayTransport() {
         })
       });
 
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Remote delivery failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Remote delivery failed: ${status}`);
 
       return {
         remoteUrl: normalizedRemoteUrl,
@@ -48,7 +44,10 @@ export function createLocalHttpRelayTransport() {
       };
     },
     async pullQueued({ target, options = {} }) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(options.remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        options.remoteUrl,
+        "Missing remoteUrl for relay transport."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/relay/pull`, {
         method: "POST",
         headers: {
@@ -59,10 +58,8 @@ export function createLocalHttpRelayTransport() {
         })
       });
 
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Relay pull failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Relay pull failed: ${status}`);
 
       return {
         remoteUrl: normalizedRemoteUrl,
@@ -70,28 +67,30 @@ export function createLocalHttpRelayTransport() {
       };
     },
     async listRoutes({ options = {} } = {}) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(options.remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        options.remoteUrl,
+        "Missing remoteUrl for relay transport."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/relay/routes`);
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Relay route listing failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Relay route listing failed: ${status}`);
       return {
         remoteUrl: normalizedRemoteUrl,
         payload
       };
     },
     async listQueue({ options = {}, target = null } = {}) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(options.remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        options.remoteUrl,
+        "Missing remoteUrl for relay transport."
+      );
       const queueUrl = new URL(`${normalizedRemoteUrl}/relay/queue`);
       if (target) {
         queueUrl.searchParams.set("targetAgent", target);
       }
       const response = await fetch(queueUrl);
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Relay queue listing failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Relay queue listing failed: ${status}`);
       return {
         remoteUrl: normalizedRemoteUrl,
         payload

@@ -1,11 +1,5 @@
-﻿function normalizeRemoteUrl(remoteUrl) {
-  if (!remoteUrl) {
-    throw new Error("Missing remoteUrl for transport delivery.");
-  }
-
-  const url = new URL(remoteUrl);
-  return url.toString().replace(/\/+$/g, "");
-}
+import { assertTransportOk, parseTransportJson } from "./transportErrors.js";
+import { normalizeRemoteUrl } from "./transportUrl.js";
 
 export function createLocalHttpAgentTransport() {
   return {
@@ -13,19 +7,23 @@ export function createLocalHttpAgentTransport() {
     kind: "local-http-agent",
     capabilities: ["send-bundle", "health"],
     async health({ remoteUrl }) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        remoteUrl,
+        "Missing remoteUrl for transport delivery."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/health`);
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Agent transport health failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Agent transport health failed: ${status}`);
       return {
         remoteUrl: normalizedRemoteUrl,
         payload
       };
     },
     async sendBundle({ bundle, options = {} }) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(options.remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        options.remoteUrl,
+        "Missing remoteUrl for transport delivery."
+      );
       const response = await fetch(`${normalizedRemoteUrl}/transport/accept-bundle`, {
         method: "POST",
         headers: {
@@ -34,10 +32,8 @@ export function createLocalHttpAgentTransport() {
         body: JSON.stringify({ bundle })
       });
 
-      const payload = await response.json().catch(() => null);
-      if (!response.ok || payload?.ok === false) {
-        throw new Error(payload?.error ?? `Remote delivery failed: ${response.status}`);
-      }
+      const payload = await parseTransportJson(response);
+      assertTransportOk(response, payload, (status) => `Remote delivery failed: ${status}`);
 
       return {
         remoteUrl: normalizedRemoteUrl,
