@@ -10,6 +10,7 @@
     "ping:mock": "node ./src/cli.js ping --mock",
     "info:mock": "node ./src/cli.js info --mock",
     "serve:mock": "node ./src/cli.js serve --mock",
-    "serve:unified:attached": "node ./src/cli.js serve-unified --listen 8795 --sender-url http://127.0.0.1:8787 --receiver-url http://127.0.0.1:8788 --relay-url http://127.0.0.1:8790"
+    "serve:unified:attached": "node ./src/cli.js serve-unified --listen 8795 --sender-url http://127.0.0.1:8787 --receiver-url http://127.0.0.1:8788 --relay-url http://127.0.0.1:8790",
+    "validate:transport-smoke": "node ./scripts/transport-smoke.js"
   }
 }
