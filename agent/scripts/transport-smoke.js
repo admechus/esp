@@ -4,6 +4,11 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 
 import { readJsonFile, writeJsonFile } from "../src/storage/jsonFiles.js";
+import {
+  assertTransportFileResult,
+  assertTransportPullResult,
+  assertTransportSendResult
+} from "../src/transport/transportAdapter.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -93,6 +98,52 @@ async function testLocalHttpAgentErrorHandling() {
   }
 }
 
+async function testLocalHttpAgentSendShape() {
+  const adapter = createLocalHttpAgentTransport();
+  const server = await withJsonServer(async (request) => {
+    assert(
+      request.method === "POST" && request.url === "/transport/accept-bundle",
+      "Agent adapter hit unexpected endpoint."
+    );
+
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        agent: {
+          name: "receiver"
+        },
+        result: {
+          accepted: [{ messageId: "message:1" }],
+          receipts: [{ receiptId: "receipt:1" }]
+        }
+      }
+    };
+  });
+
+  try {
+    const result = await adapter.sendBundle({
+      bundle: { version: 1, kind: "transport-bundle", messages: [] },
+      options: { remoteUrl: server.baseUrl }
+    });
+
+    assertTransportSendResult(result, "local-http-agent sendBundle");
+    assert(result.remoteEntity?.name === "receiver", "Agent adapter should preserve remote agent info.");
+
+    return {
+      name: "local-http-agent send result shape",
+      ok: true,
+      detail: JSON.stringify({
+        accepted: result.accepted,
+        receipts: result.receipts,
+        remoteEntity: result.remoteEntity
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
 async function testLocalHttpRelayPullShape() {
   const adapter = createLocalHttpRelayTransport();
   const mockPayload = {
@@ -125,14 +176,22 @@ async function testLocalHttpRelayPullShape() {
       options: { remoteUrl: server.baseUrl }
     });
 
+    assertTransportPullResult(result, "local-http-relay pullQueued");
     assert(result.remoteUrl === server.baseUrl, "Relay adapter should return normalized remoteUrl.");
-    assert(result.payload?.result?.pulledCount === 2, "Relay adapter should preserve pulledCount.");
-    assert(Array.isArray(result.payload?.result?.delivered), "Relay adapter should preserve delivered array.");
+    assert(result.pulledCount === 2, "Relay adapter should preserve pulledCount.");
+    assert(Array.isArray(result.delivered), "Relay adapter should preserve delivered array.");
 
     return {
       name: "local-http-relay pullQueued result shape",
       ok: true,
-      detail: JSON.stringify(result.payload.result)
+      detail: JSON.stringify({
+        pulledCount: result.pulledCount,
+        deliveredCount: result.deliveredCount,
+        failedCount: result.failedCount,
+        remainingCount: result.remainingCount,
+        delivered: result.delivered,
+        failed: result.failed
+      })
     };
   } finally {
     await server.close();
@@ -175,6 +234,8 @@ async function testFileBundleRoundtrip() {
       filePath: bundleFile
     });
 
+    assertTransportFileResult(exported, "file-bundle exportBundle");
+    assertTransportFileResult(imported, "file-bundle importBundle");
     assert(exported.filePath === bundleFile, "File bundle export should return the target path.");
     assert(
       JSON.stringify(imported.bundle) === JSON.stringify(bundle),
@@ -194,6 +255,7 @@ async function testFileBundleRoundtrip() {
 async function main() {
   const results = [];
   results.push(await testLocalHttpAgentErrorHandling());
+  results.push(await testLocalHttpAgentSendShape());
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
 

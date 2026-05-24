@@ -36,7 +36,18 @@ export function createLocalHttpAgentTransport() {
       assertTransportOk(response, payload, (status) => `Remote delivery failed: ${status}`);
 
       return {
+        id: "local-http-agent",
+        kind: "local-http-agent",
         remoteUrl: normalizedRemoteUrl,
+        remoteEntity: payload?.agent ?? null,
+        accepted: payload?.result?.accepted ?? [],
+        receipts: payload?.result?.receipts ?? [],
+        queued: false,
+        queueId: null,
+        queueReason: null,
+        queueError: null,
+        relayReceiptId: null,
+        targetAgent: null,
         payload
       };
     }

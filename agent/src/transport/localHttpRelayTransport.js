@@ -39,7 +39,18 @@ export function createLocalHttpRelayTransport() {
       assertTransportOk(response, payload, (status) => `Remote delivery failed: ${status}`);
 
       return {
+        id: "local-http-relay",
+        kind: "local-http-relay",
         remoteUrl: normalizedRemoteUrl,
+        remoteEntity: payload?.relay ?? payload?.agent ?? null,
+        accepted: payload?.result?.accepted ?? [],
+        receipts: payload?.result?.receipts ?? payload?.result?.downstream?.receipts ?? [],
+        queued: Boolean(payload?.result?.queued),
+        queueId: payload?.result?.queueId ?? null,
+        queueReason: payload?.result?.queueReason ?? null,
+        queueError: payload?.result?.error ?? null,
+        relayReceiptId: payload?.result?.relayReceiptId ?? null,
+        targetAgent: target ?? null,
         payload
       };
     },
@@ -62,7 +73,17 @@ export function createLocalHttpRelayTransport() {
       assertTransportOk(response, payload, (status) => `Relay pull failed: ${status}`);
 
       return {
+        id: "local-http-relay",
+        kind: "local-http-relay",
         remoteUrl: normalizedRemoteUrl,
+        targetAgent: target ?? null,
+        pulledCount: payload?.result?.pulledCount ?? 0,
+        deliveredCount: payload?.result?.deliveredCount ?? 0,
+        failedCount: payload?.result?.failedCount ?? 0,
+        remainingCount: payload?.result?.remainingCount ?? 0,
+        delivered: payload?.result?.delivered ?? [],
+        failed: payload?.result?.failed ?? [],
+        relay: payload?.relay ?? null,
         payload
       };
     },

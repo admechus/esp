@@ -1,4 +1,4 @@
-﻿export function createFileBundleTransport({ readJsonFile, writeJsonFile }) {
+export function createFileBundleTransport({ readJsonFile, writeJsonFile }) {
   if (typeof readJsonFile !== "function" || typeof writeJsonFile !== "function") {
     throw new Error("File bundle transport requires readJsonFile and writeJsonFile.");
   }
@@ -16,15 +16,21 @@
     async exportBundle({ filePath, bundle }) {
       await writeJsonFile(filePath, bundle);
       return {
+        id: "file-bundle",
+        kind: "file-bundle",
         filePath,
-        bundle
+        bundle,
+        messageCount: Array.isArray(bundle?.messages) ? bundle.messages.length : null
       };
     },
     async importBundle({ filePath }) {
       const bundle = await readJsonFile(filePath);
       return {
+        id: "file-bundle",
+        kind: "file-bundle",
         filePath,
-        bundle
+        bundle,
+        messageCount: Array.isArray(bundle?.messages) ? bundle.messages.length : null
       };
     }
   };
