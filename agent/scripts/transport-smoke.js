@@ -19,6 +19,29 @@ function assert(condition, message) {
   }
 }
 
+function expectValidatorFailure({ fn, name, includes }) {
+  let thrown = null;
+  try {
+    fn();
+  } catch (error) {
+    thrown = error;
+  }
+
+  assert(thrown instanceof Error, `${name} should throw.`);
+  for (const fragment of includes) {
+    assert(
+      thrown.message.includes(fragment),
+      `${name} should mention "${fragment}", got: ${thrown.message}`
+    );
+  }
+
+  return {
+    name,
+    ok: true,
+    detail: thrown.message
+  };
+}
+
 async function withJsonServer(handler) {
   const server = createServer(async (request, response) => {
     try {
@@ -252,12 +275,204 @@ async function testFileBundleRoundtrip() {
   }
 }
 
+function testTransportSendNegativePaths() {
+  return [
+    expectValidatorFailure({
+      name: "TransportSendResult missing id",
+      fn() {
+        assertTransportSendResult(
+          {
+            kind: "local-http-agent",
+            remoteUrl: "http://127.0.0.1:8788",
+            accepted: [],
+            receipts: [],
+            queued: false,
+            queueId: null,
+            queueReason: null,
+            queueError: null,
+            relayReceiptId: null,
+            targetAgent: null
+          },
+          "negative TransportSendResult missing id"
+        );
+      },
+      includes: ["TransportSendResult", "id"]
+    }),
+    expectValidatorFailure({
+      name: "TransportSendResult wrong receipts shape",
+      fn() {
+        assertTransportSendResult(
+          {
+            id: "local-http-agent",
+            kind: "local-http-agent",
+            remoteUrl: "http://127.0.0.1:8788",
+            accepted: [],
+            receipts: {},
+            queued: false,
+            queueId: null,
+            queueReason: null,
+            queueError: null,
+            relayReceiptId: null,
+            targetAgent: null
+          },
+          "negative TransportSendResult wrong receipts shape"
+        );
+      },
+      includes: ["TransportSendResult", "receipts"]
+    }),
+    expectValidatorFailure({
+      name: "TransportSendResult invalid queued type",
+      fn() {
+        assertTransportSendResult(
+          {
+            id: "local-http-agent",
+            kind: "local-http-agent",
+            remoteUrl: "http://127.0.0.1:8788",
+            accepted: [],
+            receipts: [],
+            queued: "false",
+            queueId: null,
+            queueReason: null,
+            queueError: null,
+            relayReceiptId: null,
+            targetAgent: null
+          },
+          "negative TransportSendResult invalid queued type"
+        );
+      },
+      includes: ["TransportSendResult", "queued"]
+    })
+  ];
+}
+
+function testTransportPullNegativePaths() {
+  return [
+    expectValidatorFailure({
+      name: "TransportPullResult missing remoteUrl",
+      fn() {
+        assertTransportPullResult(
+          {
+            id: "local-http-relay",
+            kind: "local-http-relay",
+            targetAgent: "receiver",
+            pulledCount: 1,
+            deliveredCount: 1,
+            failedCount: 0,
+            remainingCount: 0,
+            delivered: [],
+            failed: []
+          },
+          "negative TransportPullResult missing remoteUrl"
+        );
+      },
+      includes: ["TransportPullResult", "remoteUrl"]
+    }),
+    expectValidatorFailure({
+      name: "TransportPullResult invalid delivered shape",
+      fn() {
+        assertTransportPullResult(
+          {
+            id: "local-http-relay",
+            kind: "local-http-relay",
+            remoteUrl: "http://127.0.0.1:8790",
+            targetAgent: "receiver",
+            pulledCount: 1,
+            deliveredCount: 1,
+            failedCount: 0,
+            remainingCount: 0,
+            delivered: {},
+            failed: []
+          },
+          "negative TransportPullResult invalid delivered shape"
+        );
+      },
+      includes: ["TransportPullResult", "delivered"]
+    }),
+    expectValidatorFailure({
+      name: "TransportPullResult invalid remainingCount type",
+      fn() {
+        assertTransportPullResult(
+          {
+            id: "local-http-relay",
+            kind: "local-http-relay",
+            remoteUrl: "http://127.0.0.1:8790",
+            targetAgent: "receiver",
+            pulledCount: 1,
+            deliveredCount: 1,
+            failedCount: 0,
+            remainingCount: "0",
+            delivered: [],
+            failed: []
+          },
+          "negative TransportPullResult invalid remainingCount type"
+        );
+      },
+      includes: ["TransportPullResult", "remainingCount"]
+    })
+  ];
+}
+
+function testTransportFileNegativePaths() {
+  return [
+    expectValidatorFailure({
+      name: "TransportFileResult missing filePath",
+      fn() {
+        assertTransportFileResult(
+          {
+            id: "file-bundle",
+            kind: "file-bundle",
+            bundle: {},
+            messageCount: 0
+          },
+          "negative TransportFileResult missing filePath"
+        );
+      },
+      includes: ["TransportFileResult", "filePath"]
+    }),
+    expectValidatorFailure({
+      name: "TransportFileResult invalid bundle shape",
+      fn() {
+        assertTransportFileResult(
+          {
+            id: "file-bundle",
+            kind: "file-bundle",
+            filePath: "C:\\temp\\bundle.json",
+            bundle: null,
+            messageCount: 0
+          },
+          "negative TransportFileResult invalid bundle shape"
+        );
+      },
+      includes: ["bundle", "object"]
+    }),
+    expectValidatorFailure({
+      name: "TransportFileResult invalid messageCount type",
+      fn() {
+        assertTransportFileResult(
+          {
+            id: "file-bundle",
+            kind: "file-bundle",
+            filePath: "C:\\temp\\bundle.json",
+            bundle: {},
+            messageCount: "1"
+          },
+          "negative TransportFileResult invalid messageCount type"
+        );
+      },
+      includes: ["TransportFileResult", "messageCount"]
+    })
+  ];
+}
+
 async function main() {
   const results = [];
   results.push(await testLocalHttpAgentErrorHandling());
   results.push(await testLocalHttpAgentSendShape());
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
+  results.push(...testTransportSendNegativePaths());
+  results.push(...testTransportPullNegativePaths());
+  results.push(...testTransportFileNegativePaths());
 
   console.log(
     JSON.stringify(
