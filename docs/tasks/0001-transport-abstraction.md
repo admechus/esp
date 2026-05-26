@@ -19,6 +19,7 @@ Current adapter modules in the codebase:
 - `local-http-agent`
 - `local-http-relay`
 - `file-bundle`
+- `yggdrasil-direct` (experimental scaffold, not wired into runtime)
 - `transportRegistry`
 - shared helper modules:
   - `transportUrl`
@@ -69,11 +70,17 @@ Normalized transport result contracts:
 
 ## Future adapters
 
-- `yggdrasil-direct`
 - `tcp-direct`
 - `serial-bridge`
 - `lora-bridge`
 - `ble-bridge`
+
+## Experimental transport spikes
+
+- `yggdrasil-direct`
+  - current state: HTTP-over-URL transport scaffold only
+  - not integrated into `agentRuntime.js`
+  - no routing, discovery, fallback, or real Yggdrasil-specific networking behavior yet
 
 ## Suggested implementation order
 

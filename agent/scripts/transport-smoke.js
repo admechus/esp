@@ -12,6 +12,7 @@ import {
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
+import { createYggdrasilDirectTransport } from "../src/transport/yggdrasilDirectTransport.js";
 
 function assert(condition, message) {
   if (!condition) {
@@ -275,6 +276,56 @@ async function testFileBundleRoundtrip() {
   }
 }
 
+async function testYggdrasilDirectSendShape() {
+  const adapter = createYggdrasilDirectTransport();
+  const server = await withJsonServer(async (request) => {
+    assert(
+      request.method === "POST" && request.url === "/transport/accept-bundle",
+      "Yggdrasil direct adapter hit unexpected endpoint."
+    );
+
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        peer: {
+          name: "ygg-peer-alpha",
+          transport: "yggdrasil-direct"
+        },
+        result: {
+          accepted: [{ messageId: "message:ygg:1" }],
+          receipts: [{ receiptId: "receipt:ygg:1" }]
+        }
+      }
+    };
+  });
+
+  try {
+    const result = await adapter.sendBundle({
+      target: "ygg-peer-alpha",
+      bundle: { version: 1, kind: "transport-bundle", messages: [] },
+      options: { remoteUrl: server.baseUrl }
+    });
+
+    assertTransportSendResult(result, "yggdrasil-direct sendBundle");
+    assert(result.kind === "yggdrasil-direct", "Yggdrasil adapter should preserve transport kind.");
+    assert(result.targetAgent === "ygg-peer-alpha", "Yggdrasil adapter should preserve target peer.");
+
+    return {
+      name: "yggdrasil-direct send result shape (contract-only)",
+      ok: true,
+      detail: JSON.stringify({
+        remoteUrl: result.remoteUrl,
+        remoteEntity: result.remoteEntity,
+        accepted: result.accepted,
+        receipts: result.receipts
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
 function testTransportSendNegativePaths() {
   return [
     expectValidatorFailure({
@@ -470,6 +521,7 @@ async function main() {
   results.push(await testLocalHttpAgentSendShape());
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
+  results.push(await testYggdrasilDirectSendShape());
   results.push(...testTransportSendNegativePaths());
   results.push(...testTransportPullNegativePaths());
   results.push(...testTransportFileNegativePaths());
