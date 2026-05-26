@@ -1,4 +1,4 @@
-﻿# ESP Messenger Prototype
+# ESP Messenger Prototype
 
 This repository is the starting point for an experimental messenger built around ESP-based hardware identities, gateway nodes, and future swarm-capable peer structures.
 
@@ -202,4 +202,13 @@ For day-to-day lab work, the full local stack can now be managed through [tools/
 - [docs/adr/](./docs/adr)
 - [docs/protocol/](./docs/protocol)
 - [docs/tasks/](./docs/tasks)
+
+
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](./LICENSE).
+
+Third-party dependency and attribution tracking lives in
+[docs/legal/third-party-notices.md](./docs/legal/third-party-notices.md).
 
