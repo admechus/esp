@@ -10,6 +10,11 @@ import {
   assertTransportPullResult,
   assertTransportSendResult
 } from "../src/transport/transportAdapter.js";
+import {
+  getTransportById,
+  listTransportMetadata,
+  summarizeTransportCapabilities
+} from "../src/transport/transportDiagnostics.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -379,6 +384,104 @@ function testRegisteredTransportMetadata() {
   };
 }
 
+function createExplodingAdapter({
+  id,
+  kind,
+  metadata,
+  capabilities
+}) {
+  return {
+    id,
+    kind,
+    capabilities,
+    metadata,
+    async health() {
+      throw new Error(`${id} health should not be called by diagnostics.`);
+    },
+    async sendBundle() {
+      throw new Error(`${id} sendBundle should not be called by diagnostics.`);
+    },
+    async pullQueued() {
+      throw new Error(`${id} pullQueued should not be called by diagnostics.`);
+    }
+  };
+}
+
+function testTransportDiagnosticsStableVisibility() {
+  const diagnosticsRegistry = createTransportRegistry({
+    localHttpAgent: createExplodingAdapter({
+      id: "local-http-agent",
+      kind: "local-http-agent",
+      capabilities: ["send-bundle", "health"],
+      metadata: createLocalHttpAgentTransport().metadata
+    }),
+    localHttpRelay: createExplodingAdapter({
+      id: "local-http-relay",
+      kind: "local-http-relay",
+      capabilities: ["send-bundle", "pull-queued", "list-routes", "list-queue", "health"],
+      metadata: createLocalHttpRelayTransport().metadata
+    }),
+    fileBundle: createExplodingAdapter({
+      id: "file-bundle",
+      kind: "file-bundle",
+      capabilities: ["export-bundle", "import-bundle", "health"],
+      metadata: createFileBundleTransport({
+        readJsonFile,
+        writeJsonFile
+      }).metadata
+    })
+  });
+
+  const metadataList = listTransportMetadata(diagnosticsRegistry);
+  const capabilitySummary = summarizeTransportCapabilities(diagnosticsRegistry);
+  const relayMetadata = getTransportById(diagnosticsRegistry, "local-http-relay");
+
+  assert(metadataList.length === 3, `Expected 3 stable runtime transports, got ${metadataList.length}.`);
+  assert(capabilitySummary.length === 3, `Expected 3 transport summaries, got ${capabilitySummary.length}.`);
+  assert(relayMetadata?.metadata?.supports?.pullRecovery === true, "Relay metadata should expose pullRecovery.");
+
+  return {
+    name: "transport diagnostics stable visibility",
+    ok: true,
+    detail: JSON.stringify(
+      capabilitySummary.map((entry) => ({
+        id: entry.id,
+        networkClass: entry.networkClass,
+        experimental: entry.experimental
+      }))
+    )
+  };
+}
+
+function testTransportDiagnosticsYggTestRegistry() {
+  const diagnosticsRegistry = createTransportRegistry({
+    localHttpAgent: createLocalHttpAgentTransport(),
+    localHttpRelay: createLocalHttpRelayTransport(),
+    fileBundle: createFileBundleTransport({
+      readJsonFile,
+      writeJsonFile
+    }),
+    yggdrasilDirect: createYggdrasilDirectTransport()
+  });
+
+  const metadataList = listTransportMetadata(diagnosticsRegistry);
+  const yggMetadata = getTransportById(diagnosticsRegistry, "yggdrasil-direct");
+
+  assert(metadataList.length === 4, `Expected 4 transports in test registry, got ${metadataList.length}.`);
+  assert(yggMetadata?.metadata?.experimental === true, "Yggdrasil metadata should be experimental in diagnostics.");
+
+  return {
+    name: "transport diagnostics ygg test registry visibility",
+    ok: true,
+    detail: JSON.stringify({
+      id: yggMetadata.id,
+      kind: yggMetadata.kind,
+      experimental: yggMetadata.metadata.experimental,
+      networkClass: yggMetadata.metadata.networkClass
+    })
+  };
+}
+
 function testTransportSendNegativePaths() {
   return [
     expectValidatorFailure({
@@ -576,6 +679,8 @@ async function main() {
   results.push(await testFileBundleRoundtrip());
   results.push(await testYggdrasilDirectSendShape());
   results.push(testRegisteredTransportMetadata());
+  results.push(testTransportDiagnosticsStableVisibility());
+  results.push(testTransportDiagnosticsYggTestRegistry());
   results.push(...testTransportSendNegativePaths());
   results.push(...testTransportPullNegativePaths());
   results.push(...testTransportFileNegativePaths());

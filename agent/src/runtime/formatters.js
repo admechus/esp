@@ -69,3 +69,27 @@ export function formatMessageTable(messages) {
 
   return lines.join("\n");
 }
+
+export function formatTransportTable(transports) {
+  if (!transports.length) {
+    return "No transports registered.";
+  }
+
+  return transports
+    .map((transport) => {
+      const supports = Object.entries(transport.supports ?? {})
+        .filter(([, value]) => value)
+        .map(([key]) => key)
+        .join(", ");
+
+      return [
+        `${transport.label ?? transport.id} (${transport.id})`,
+        `  kind: ${transport.kind}`,
+        `  network: ${transport.networkClass ?? "unknown"}`,
+        `  experimental: ${transport.experimental ? "yes" : "no"}`,
+        `  capabilities: ${(transport.capabilities ?? []).join(", ") || "none"}`,
+        `  supports: ${supports || "none"}`
+      ].join("\n");
+    })
+    .join("\n\n");
+}

@@ -13,6 +13,8 @@ Completed:
 - Phase 1.5 helper stabilization completed
 - Phase 2 response mapping cleanup and registry-first transport selection completed
 - Phase 3 transport result contract stabilization completed
+- Stage 3 Step 2 transport metadata passports completed
+- Stage 3 Step 3 transport diagnostics visibility completed
 
 Current adapter modules in the codebase:
 
@@ -26,6 +28,7 @@ Current adapter modules in the codebase:
   - `transportErrors`
   - `transportAdapter` result contracts and shape assertions
   - descriptive transport metadata passports
+  - read-only transport diagnostics visibility helpers
 
 Still intentionally owned by `agentRuntime.js`:
 
@@ -98,6 +101,8 @@ Completed:
 8. Reduce direct runtime knowledge of raw transport payload shapes.
 9. Use adapter registry as the explicit runtime lookup path.
 10. Stabilize normalized transport result contracts and validate them in smoke tests.
+11. Add descriptive transport metadata passports for each adapter.
+12. Expose read-only transport diagnostics visibility without runtime selection logic.
 
 ## Next remaining phase
 
@@ -106,6 +111,7 @@ The next deeper phase should focus on:
 - using the normalized adapter result contracts more consistently across runtime call sites
 - deciding whether low-risk route and queue listing contracts should be normalized in the same style
 - continuing runtime decoupling only where transport and business boundaries remain clear
+- preserving diagnostics as visibility-only while resisting premature transport selection logic
 
 This phase should still avoid:
 
@@ -121,6 +127,7 @@ The next deeper phase should focus on:
 - broader adapter contract adoption
 - optional normalization of route and queue listing results
 - deeper runtime decoupling from transport details where that does not blur business ownership
+- keeping metadata and diagnostics descriptive only until routing policy is explicitly designed
 
 ## Acceptance shape
 

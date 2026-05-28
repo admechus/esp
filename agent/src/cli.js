@@ -12,13 +12,15 @@ import {
   formatMessageTable,
   formatPeerTable,
   formatPortTable,
-  formatProfileTable
+  formatProfileTable,
+  formatTransportTable
 } from "./runtime/formatters.js";
 
 function printUsage() {
   console.log(`Usage:
   node src/cli.js list-ports
   node src/cli.js list-profiles
+  node src/cli.js list-transports
   node src/cli.js ping --mock
   node src/cli.js info --mock
   node src/cli.js serve --port COM9 [--listen 8787] [--host 127.0.0.1] [--state-dir .\\agent\\state] [--agent-name sender] [--remote-url http://127.0.0.1:8788] [--sync-interval-ms 15000]
@@ -254,6 +256,10 @@ async function main() {
     }
     case "list-profiles": {
       console.log(formatProfileTable(runtime.listProfiles()));
+      break;
+    }
+    case "list-transports": {
+      console.log(formatTransportTable(runtime.listTransports()));
       break;
     }
     case "ping": {

@@ -24,6 +24,7 @@ import { createPeerStore } from "../storage/peerStore.js";
 import { createFileBundleTransport } from "../transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../transport/localHttpRelayTransport.js";
+import { summarizeTransportCapabilities } from "../transport/transportDiagnostics.js";
 import { createTransportRegistry } from "../transport/transportRegistry.js";
 import { discoverWindowsEspPorts } from "../transport/windowsComDiscovery.js";
 import { createMockDongleTransport } from "../transport/mockDongleTransport.js";
@@ -265,6 +266,9 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     },
     listProfiles() {
       return getPlatformProfiles();
+    },
+    listTransports() {
+      return summarizeTransportCapabilities(transportRegistry);
     },
     async listPorts() {
       return discoverWindowsEspPorts();

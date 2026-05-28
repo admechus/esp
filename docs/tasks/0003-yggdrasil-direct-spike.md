@@ -18,6 +18,8 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 - a direct-send transport adapter contract exists
 - the adapter can normalize send results
 - the adapter has a descriptive metadata passport
+- the adapter can appear in diagnostics-only registries without being wired into runtime delivery
+- the adapter can be listed by read-only transport diagnostics helpers in test-only registries
 - the adapter can be smoke-tested locally without Yggdrasil installed
 
 ## What Is Not Implemented Yet
