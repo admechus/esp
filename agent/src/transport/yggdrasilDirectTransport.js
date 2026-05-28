@@ -7,6 +7,27 @@ export function createYggdrasilDirectTransport() {
     id: "yggdrasil-direct",
     kind: "yggdrasil-direct",
     capabilities: ["direct-send", "ipv6"],
+    metadata: {
+      id: "yggdrasil-direct",
+      kind: "yggdrasil-direct",
+      label: "Yggdrasil Direct",
+      description: "Experimental direct-send scaffold for future HTTP-over-Yggdrasil IPv6 delivery.",
+      capabilities: ["direct-send", "ipv6"],
+      deliveryModes: ["direct-http", "ipv6-direct-spike"],
+      networkClass: "overlay-ipv6-spike",
+      experimental: true,
+      supports: {
+        healthCheck: true,
+        directSend: true,
+        relayDelivery: false,
+        pullRecovery: false,
+        fileExport: false,
+        fileImport: false,
+        offlineCarry: false,
+        ipv4: false,
+        ipv6: true
+      }
+    },
     async health({ remoteUrl }) {
       const normalizedRemoteUrl = normalizeRemoteUrl(
         remoteUrl,

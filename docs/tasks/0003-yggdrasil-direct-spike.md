@@ -8,6 +8,7 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 
 - adapter file exists at `agent/src/transport/yggdrasilDirectTransport.js`
 - follows the normalized `TransportSendResult` contract
+- exposes descriptive `TransportMetadata`
 - reuses shared transport URL and transport error helpers
 - uses the same HTTP-style `/transport/accept-bundle` spike path as a transport contract scaffold
 - is intentionally not wired into `agentRuntime.js`
@@ -16,6 +17,7 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 
 - a direct-send transport adapter contract exists
 - the adapter can normalize send results
+- the adapter has a descriptive metadata passport
 - the adapter can be smoke-tested locally without Yggdrasil installed
 
 ## What Is Not Implemented Yet

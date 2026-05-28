@@ -25,6 +25,7 @@ Current adapter modules in the codebase:
   - `transportUrl`
   - `transportErrors`
   - `transportAdapter` result contracts and shape assertions
+  - descriptive transport metadata passports
 
 Still intentionally owned by `agentRuntime.js`:
 
@@ -81,6 +82,7 @@ Normalized transport result contracts:
   - current state: HTTP-over-URL transport scaffold only
   - not integrated into `agentRuntime.js`
   - no routing, discovery, fallback, or real Yggdrasil-specific networking behavior yet
+  - metadata passport is present, but descriptive only
 
 ## Suggested implementation order
 

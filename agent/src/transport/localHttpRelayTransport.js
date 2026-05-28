@@ -6,6 +6,27 @@ export function createLocalHttpRelayTransport() {
     id: "local-http-relay",
     kind: "local-http-relay",
     capabilities: ["send-bundle", "pull-queued", "list-routes", "list-queue", "health"],
+    metadata: {
+      id: "local-http-relay",
+      kind: "local-http-relay",
+      label: "Local HTTP Relay",
+      description: "HTTP relay transport for queued forwarding, route inspection, and pull recovery.",
+      capabilities: ["send-bundle", "pull-queued", "list-routes", "list-queue", "health"],
+      deliveryModes: ["relay-http", "queued-http"],
+      networkClass: "host-http-relay",
+      experimental: false,
+      supports: {
+        healthCheck: true,
+        directSend: false,
+        relayDelivery: true,
+        pullRecovery: true,
+        fileExport: false,
+        fileImport: false,
+        offlineCarry: true,
+        ipv4: true,
+        ipv6: true
+      }
+    },
     async health({ remoteUrl }) {
       const normalizedRemoteUrl = normalizeRemoteUrl(
         remoteUrl,

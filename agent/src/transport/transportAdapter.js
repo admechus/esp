@@ -1,4 +1,27 @@
 /**
+ * @typedef {Object} TransportMetadata
+ * @property {string} id Stable adapter identifier.
+ * @property {string} kind Transport family or implementation kind.
+ * @property {string} label Human-readable transport label.
+ * @property {string} description Short descriptive summary of the transport.
+ * @property {string[]} capabilities Declared transport features.
+ * @property {string[]} deliveryModes Descriptive delivery mode tags.
+ * @property {string} networkClass Descriptive network class tag.
+ * @property {boolean} experimental Whether the transport is experimental.
+ * @property {{
+ *   healthCheck: boolean,
+ *   directSend: boolean,
+ *   relayDelivery: boolean,
+ *   pullRecovery: boolean,
+ *   fileExport: boolean,
+ *   fileImport: boolean,
+ *   offlineCarry: boolean,
+ *   ipv4: boolean,
+ *   ipv6: boolean
+ * }} supports Descriptive support flags only.
+ */
+
+/**
  * @typedef {Object} TransportHealthResult
  * @property {string} [id] Transport adapter identifier when included by the adapter.
  * @property {string} kind Transport family or implementation kind.
@@ -54,6 +77,7 @@
  * @property {string} id Stable adapter identifier.
  * @property {string} kind Transport family or implementation kind.
  * @property {string[]} capabilities Advertised transport features.
+ * @property {TransportMetadata} metadata Descriptive transport passport.
  * @property {(input?: object) => Promise<TransportHealthResult>} health Reports adapter health or availability.
  * @property {(input: {
  *   target?: string | null,
@@ -107,6 +131,40 @@ function assertNullableNumber(value, fieldName, context) {
   if (value !== null && !Number.isFinite(value)) {
     throw new Error(`${context} has invalid number field ${fieldName}.`);
   }
+}
+
+function assertBoolean(value, fieldName, context) {
+  if (typeof value !== "boolean") {
+    throw new Error(`${context} has invalid boolean field ${fieldName}.`);
+  }
+}
+
+/**
+ * @param {unknown} metadata
+ * @param {string} [context]
+ * @returns {TransportMetadata}
+ */
+export function assertTransportMetadata(metadata, context = "TransportMetadata") {
+  assertObject(metadata, context);
+  assertString(metadata.id, "id", context);
+  assertString(metadata.kind, "kind", context);
+  assertString(metadata.label, "label", context);
+  assertString(metadata.description, "description", context);
+  assertArray(metadata.capabilities, "capabilities", context);
+  assertArray(metadata.deliveryModes, "deliveryModes", context);
+  assertString(metadata.networkClass, "networkClass", context);
+  assertBoolean(metadata.experimental, "experimental", context);
+  assertObject(metadata.supports, `${context}.supports`);
+  assertBoolean(metadata.supports.healthCheck, "supports.healthCheck", context);
+  assertBoolean(metadata.supports.directSend, "supports.directSend", context);
+  assertBoolean(metadata.supports.relayDelivery, "supports.relayDelivery", context);
+  assertBoolean(metadata.supports.pullRecovery, "supports.pullRecovery", context);
+  assertBoolean(metadata.supports.fileExport, "supports.fileExport", context);
+  assertBoolean(metadata.supports.fileImport, "supports.fileImport", context);
+  assertBoolean(metadata.supports.offlineCarry, "supports.offlineCarry", context);
+  assertBoolean(metadata.supports.ipv4, "supports.ipv4", context);
+  assertBoolean(metadata.supports.ipv6, "supports.ipv6", context);
+  return /** @type {TransportMetadata} */ (metadata);
 }
 
 /**

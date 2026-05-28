@@ -6,6 +6,27 @@ export function createLocalHttpAgentTransport() {
     id: "local-http-agent",
     kind: "local-http-agent",
     capabilities: ["send-bundle", "health"],
+    metadata: {
+      id: "local-http-agent",
+      kind: "local-http-agent",
+      label: "Local HTTP Agent",
+      description: "Direct HTTP delivery to another agent endpoint without relay semantics.",
+      capabilities: ["send-bundle", "health"],
+      deliveryModes: ["direct-http"],
+      networkClass: "host-http",
+      experimental: false,
+      supports: {
+        healthCheck: true,
+        directSend: true,
+        relayDelivery: false,
+        pullRecovery: false,
+        fileExport: false,
+        fileImport: false,
+        offlineCarry: false,
+        ipv4: true,
+        ipv6: true
+      }
+    },
     async health({ remoteUrl }) {
       const normalizedRemoteUrl = normalizeRemoteUrl(
         remoteUrl,

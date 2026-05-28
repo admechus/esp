@@ -1,11 +1,12 @@
-﻿export function createTransportRegistry({
+export function createTransportRegistry({
   localHttpAgent,
   localHttpRelay,
-  fileBundle
+  fileBundle,
+  yggdrasilDirect
 } = {}) {
   const transports = new Map();
 
-  for (const transport of [localHttpAgent, localHttpRelay, fileBundle]) {
+  for (const transport of [localHttpAgent, localHttpRelay, fileBundle, yggdrasilDirect]) {
     if (!transport?.id) {
       continue;
     }

@@ -7,6 +7,27 @@ export function createFileBundleTransport({ readJsonFile, writeJsonFile }) {
     id: "file-bundle",
     kind: "file-bundle",
     capabilities: ["export-bundle", "import-bundle", "health"],
+    metadata: {
+      id: "file-bundle",
+      kind: "file-bundle",
+      label: "File Bundle",
+      description: "Filesystem-based bundle export and import for offline carry and manual transfer.",
+      capabilities: ["export-bundle", "import-bundle", "health"],
+      deliveryModes: ["file-export", "file-import", "offline-carry"],
+      networkClass: "offline-file",
+      experimental: false,
+      supports: {
+        healthCheck: true,
+        directSend: false,
+        relayDelivery: false,
+        pullRecovery: false,
+        fileExport: true,
+        fileImport: true,
+        offlineCarry: true,
+        ipv4: false,
+        ipv6: false
+      }
+    },
     async health() {
       return {
         ok: true,

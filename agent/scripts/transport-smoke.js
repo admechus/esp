@@ -6,12 +6,14 @@ import { tmpdir } from "node:os";
 import { readJsonFile, writeJsonFile } from "../src/storage/jsonFiles.js";
 import {
   assertTransportFileResult,
+  assertTransportMetadata,
   assertTransportPullResult,
   assertTransportSendResult
 } from "../src/transport/transportAdapter.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
+import { createTransportRegistry } from "../src/transport/transportRegistry.js";
 import { createYggdrasilDirectTransport } from "../src/transport/yggdrasilDirectTransport.js";
 
 function assert(condition, message) {
@@ -326,6 +328,57 @@ async function testYggdrasilDirectSendShape() {
   }
 }
 
+function testRegisteredTransportMetadata() {
+  const registry = createTransportRegistry({
+    localHttpAgent: createLocalHttpAgentTransport(),
+    localHttpRelay: createLocalHttpRelayTransport(),
+    fileBundle: createFileBundleTransport({
+      readJsonFile,
+      writeJsonFile
+    }),
+    yggdrasilDirect: createYggdrasilDirectTransport()
+  });
+
+  const adapters = registry.list();
+  assert(adapters.length === 4, `Expected 4 registered adapters, got ${adapters.length}.`);
+
+  for (const adapter of adapters) {
+    assertTransportMetadata(adapter.metadata, `${adapter.id} metadata`);
+    assert(adapter.id === adapter.metadata.id, `${adapter.id} metadata id should match adapter id.`);
+    assert(adapter.kind === adapter.metadata.kind, `${adapter.id} metadata kind should match adapter kind.`);
+    assert(
+      JSON.stringify(adapter.capabilities) === JSON.stringify(adapter.metadata.capabilities),
+      `${adapter.id} metadata capabilities should match adapter capabilities.`
+    );
+  }
+
+  const yggAdapter = registry.require("yggdrasil-direct");
+  assert(yggAdapter.metadata.experimental === true, "yggdrasil-direct should be marked experimental.");
+  assert(yggAdapter.metadata.supports.ipv6 === true, "yggdrasil-direct should declare IPv6 support.");
+
+  const fileAdapter = registry.require("file-bundle");
+  assert(fileAdapter.metadata.supports.fileExport === true, "file-bundle should declare file export support.");
+  assert(fileAdapter.metadata.supports.fileImport === true, "file-bundle should declare file import support.");
+  assert(fileAdapter.metadata.supports.offlineCarry === true, "file-bundle should declare offline carry support.");
+
+  const relayAdapter = registry.require("local-http-relay");
+  assert(relayAdapter.metadata.supports.relayDelivery === true, "local-http-relay should declare relay delivery.");
+  assert(relayAdapter.metadata.supports.pullRecovery === true, "local-http-relay should declare pull recovery.");
+
+  return {
+    name: "transport registry metadata passports",
+    ok: true,
+    detail: JSON.stringify(
+      adapters.map((adapter) => ({
+        id: adapter.id,
+        kind: adapter.kind,
+        experimental: adapter.metadata.experimental,
+        supports: adapter.metadata.supports
+      }))
+    )
+  };
+}
+
 function testTransportSendNegativePaths() {
   return [
     expectValidatorFailure({
@@ -522,6 +575,7 @@ async function main() {
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
   results.push(await testYggdrasilDirectSendShape());
+  results.push(testRegisteredTransportMetadata());
   results.push(...testTransportSendNegativePaths());
   results.push(...testTransportPullNegativePaths());
   results.push(...testTransportFileNegativePaths());
