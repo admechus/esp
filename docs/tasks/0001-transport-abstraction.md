@@ -19,6 +19,7 @@ Completed:
 - Stage 3 Step 5 manual transport health diagnostics completed
 - Stage 3 Step 6 descriptive transport configuration requirements completed
 - Stage 4 Step 1 manual runtime configuration profiles completed
+- Stage 4 Step 2 manual profile-backed transport operations completed
 
 Current adapter modules in the codebase:
 
@@ -137,6 +138,7 @@ The next deeper phase should focus on:
 - keeping transport health checks explicit/manual only, without background monitoring or delivery coupling
 - exposing operator-provided configuration requirements descriptively only, without persistence or auto-loading
 - introducing manual runtime configuration profiles without automatic discovery, routing, or persistence
+- expanding runtime profiles into manual operator-selected transport operations without automatic behavior
 
 ## Acceptance shape
 

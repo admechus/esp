@@ -25,9 +25,12 @@ function printUsage() {
   node src/cli.js list-transports
   node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
+  node src/cli.js export-bundle [--file <path>] [--transport file-bundle] [--profile <path>]
+  node src/cli.js import-bundle <path> [--transport file-bundle] [--profile <path>]
+  node src/cli.js deliver-bundle --remote-url http://127.0.0.1:8788 [--target-agent receiver] [--transport local-http-agent|local-http-relay] [--profile <path>]
   node src/cli.js ping --mock
   node src/cli.js info --mock
-  node src/cli.js pull-relay [--remote-url http://127.0.0.1:8790] [--transport local-http-relay]
+  node src/cli.js pull-relay [--remote-url http://127.0.0.1:8790] [--transport local-http-relay] [--profile <path>]
   node src/cli.js serve --port COM9 [--listen 8787] [--host 127.0.0.1] [--state-dir .\\agent\\state] [--agent-name sender] [--remote-url http://127.0.0.1:8788] [--sync-interval-ms 15000]
   node src/cli.js serve-relay [--listen 8790] [--host 127.0.0.1] [--state-dir .\\agent\\state-relay] [--relay-name gateway] [--route receiver=http://127.0.0.1:8788]
   node src/cli.js serve-unified [--listen 8795] [--sender-url http://127.0.0.1:8787 --receiver-url http://127.0.0.1:8788 --relay-url http://127.0.0.1:8790]
@@ -243,7 +246,12 @@ function parseArgs(argv) {
     options.text = positionals[0] ?? "";
   }
 
-  if (command === "verify-envelope" || command === "import-envelope" || command === "receive-envelope") {
+  if (
+    command === "verify-envelope" ||
+    command === "import-envelope" ||
+    command === "receive-envelope" ||
+    command === "import-bundle"
+  ) {
     options.filePath = options.filePath ?? positionals[0] ?? null;
   }
 
@@ -302,6 +310,27 @@ async function main() {
       }
       const result = await runtime.checkTransportHealth(resolvedArgs.transportId, resolvedArgs);
       console.log(formatTransportHealth(result));
+      break;
+    }
+    case "export-bundle": {
+      const response = await runtime.exportOutboxBundle(resolvedArgs);
+      console.log(JSON.stringify(response, null, 2));
+      break;
+    }
+    case "import-bundle": {
+      if (!resolvedArgs.filePath) {
+        throw new Error("Missing bundle file path.");
+      }
+      const response = await runtime.importTransportBundle(resolvedArgs.filePath, resolvedArgs);
+      console.log(JSON.stringify(response, null, 2));
+      break;
+    }
+    case "deliver-bundle": {
+      if (!resolvedArgs.remoteUrl) {
+        throw new Error("Missing --remote-url for deliver-bundle.");
+      }
+      const response = await runtime.deliverTransportBundle(resolvedArgs.remoteUrl, resolvedArgs);
+      console.log(JSON.stringify(response, null, 2));
       break;
     }
     case "ping": {

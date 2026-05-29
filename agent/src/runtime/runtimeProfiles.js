@@ -6,6 +6,22 @@ function hasValue(value) {
   return value !== null && value !== undefined && value !== "";
 }
 
+function summarizeProfileFields(normalizedProfile, transport) {
+  const requirements = transport?.metadata?.configRequirements ?? [];
+  const requiredFields = requirements.filter((requirement) => requirement.required).map((requirement) => requirement.name);
+  const providedFields = requirements
+    .map((requirement) => requirement.name)
+    .filter((fieldName) => hasValue(normalizedProfile?.[fieldName]));
+  const missingFields = requiredFields.filter((fieldName) => !hasValue(normalizedProfile?.[fieldName]));
+
+  return {
+    resolvedTransportId: transport?.id ?? null,
+    requiredFields,
+    providedFields,
+    missingFields
+  };
+}
+
 export function validateRuntimeProfile(profile, registry) {
   const errors = [];
   const normalizedProfile = profile && typeof profile === "object" ? { ...profile } : null;
@@ -36,6 +52,7 @@ export function validateRuntimeProfile(profile, registry) {
     errors.push(`Transport ${normalizedProfile.transport} is not active in this runtime registry.`);
   }
 
+  const summary = summarizeProfileFields(normalizedProfile, transport);
   const requirements = transport?.metadata?.configRequirements ?? [];
   for (const requirement of requirements) {
     if (requirement.required && !hasValue(normalizedProfile[requirement.name])) {
@@ -49,7 +66,8 @@ export function validateRuntimeProfile(profile, registry) {
     ok: errors.length === 0,
     profile: normalizedProfile,
     transport,
-    errors
+    errors,
+    ...summary
   };
 }
 

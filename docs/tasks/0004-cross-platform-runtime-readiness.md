@@ -10,6 +10,7 @@ configuration and lifecycle work.
 Cross-platform today:
 
 - runtime profiles
+- profile-backed manual transport operations
 - local HTTP agent and relay transports
 - file-bundle transport
 - transport metadata passports
@@ -37,6 +38,8 @@ Planned later:
 ### Runtime profiles
 
 - `agent/src/runtime/runtimeProfiles.js` is largely platform-neutral.
+- profile-backed operational merge behavior remains platform-neutral because it is
+  field-based and transport-metadata driven rather than host-platform driven.
 - Profile field names such as `profileName`, `transport`, `remoteUrl`,
   `targetAgent`, and `filePath` are host-platform agnostic.
 - Validation behavior is transport-metadata driven and does not assume Windows.

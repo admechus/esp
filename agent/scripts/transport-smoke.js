@@ -323,6 +323,39 @@ function testRuntimeProfileManualMerge() {
   };
 }
 
+async function testRuntimeProfileValidateDiagnostics() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "relay-diagnostics",
+        transport: "local-http-relay",
+        remoteUrl: "http://127.0.0.1:8790",
+        targetAgent: "receiver"
+      },
+      "relay-diagnostics.json",
+      async (filePath) => {
+        const result = await runtime.loadRuntimeProfile(filePath);
+        assert(result.ok === true, "Profile diagnostics should validate successfully.");
+        assert(result.resolvedTransportId === "local-http-relay", "Profile diagnostics should expose resolved transport id.");
+        assert(result.requiredFields.includes("remoteUrl"), "Profile diagnostics should expose required fields.");
+        assert(result.providedFields.includes("remoteUrl"), "Profile diagnostics should expose provided fields.");
+        assert(result.missingFields.length === 0, "Profile diagnostics should not report missing fields.");
+
+        return {
+          name: "runtime profile diagnostics fields",
+          ok: true,
+          detail: JSON.stringify({
+            resolvedTransportId: result.resolvedTransportId,
+            requiredFields: result.requiredFields,
+            providedFields: result.providedFields,
+            missingFields: result.missingFields
+          })
+        };
+      }
+    )
+  );
+}
+
 async function testLocalHttpAgentErrorHandling() {
   const adapter = createLocalHttpAgentTransport();
   const server = await withJsonServer(async (request) => {
@@ -957,6 +990,162 @@ async function testRuntimeExplicitFileBundleSelection() {
   });
 }
 
+async function testRuntimeProfileBackedRelayPull() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "relay-pull-profile",
+        transport: "local-http-relay",
+        remoteUrl: "http://127.0.0.1:8790",
+        targetAgent: "receiver-profile"
+      },
+      "relay-pull-profile.json",
+      async (filePath) => {
+        const loadedProfile = await runtime.loadRuntimeProfile(filePath);
+        assert(loadedProfile.ok === true, "Relay pull profile should validate.");
+        const merged = applyRuntimeProfile({}, loadedProfile);
+        assert(merged.remoteUrl === "http://127.0.0.1:8790", "Profile should supply relay remoteUrl.");
+        assert(merged.targetAgent === "receiver-profile", "Profile should supply targetAgent.");
+        assert(merged.transportId === "local-http-relay", "Profile should supply transport id.");
+
+        return {
+          name: "runtime profile-backed relay pull configuration",
+          ok: true,
+          detail: JSON.stringify({
+            transportId: merged.transportId,
+            remoteUrl: merged.remoteUrl,
+            targetAgent: merged.targetAgent
+          })
+        };
+      }
+    )
+  );
+}
+
+async function testRuntimeProfileBackedHealthCheck() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "transport-health-profile",
+        transport: "local-http-agent",
+        remoteUrl: "http://127.0.0.1:8788"
+      },
+      "transport-health-profile.json",
+      async (filePath) => {
+        const loadedProfile = await runtime.loadRuntimeProfile(filePath);
+        assert(loadedProfile.ok === true, "Health profile should validate.");
+        const merged = applyRuntimeProfile({}, loadedProfile);
+        assert(merged.transportId === "local-http-agent", "Profile should supply transport id for health check.");
+        assert(merged.remoteUrl === "http://127.0.0.1:8788", "Profile should supply remoteUrl for health check.");
+
+        return {
+          name: "runtime profile-backed transport health configuration",
+          ok: true,
+          detail: JSON.stringify({
+            transportId: merged.transportId,
+            remoteUrl: merged.remoteUrl
+          })
+        };
+      }
+    )
+  );
+}
+
+async function testRuntimeProfileBackedDeliveryResolution() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "relay-delivery-profile",
+        transport: "local-http-relay",
+        remoteUrl: "http://127.0.0.1:8790",
+        targetAgent: "receiver-profile"
+      },
+      "relay-delivery-profile.json",
+      async (filePath) => {
+        const loadedProfile = await runtime.loadRuntimeProfile(filePath);
+        assert(loadedProfile.ok === true, "Delivery profile should validate.");
+        const merged = applyRuntimeProfile({}, loadedProfile);
+        assert(merged.transportId === "local-http-relay", "Delivery profile should resolve local-http-relay.");
+        assert(merged.remoteUrl === "http://127.0.0.1:8790", "Delivery profile should resolve remoteUrl.");
+        assert(merged.targetAgent === "receiver-profile", "Delivery profile should resolve targetAgent.");
+
+        return {
+          name: "runtime profile-backed delivery configuration resolution",
+          ok: true,
+          detail: JSON.stringify({
+            transportId: merged.transportId,
+            remoteUrl: merged.remoteUrl,
+            targetAgent: merged.targetAgent
+          })
+        };
+      }
+    )
+  );
+}
+
+async function testRuntimeProfileOverrideBehavior() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "relay-override-profile",
+        transport: "local-http-relay",
+        remoteUrl: "http://127.0.0.1:8790",
+        targetAgent: "receiver"
+      },
+      "relay-override-profile.json",
+      async (filePath) => {
+        const loadedProfile = await runtime.loadRuntimeProfile(filePath);
+        assert(loadedProfile.ok === true, "Override profile should validate.");
+        const merged = applyRuntimeProfile(
+          {
+            targetAgent: "receiver-2"
+          },
+          loadedProfile
+        );
+
+        assert(merged.targetAgent === "receiver-2", "Explicit CLI targetAgent should override profile targetAgent.");
+        assert(merged.remoteUrl === "http://127.0.0.1:8790", "Profile remoteUrl should fill missing value.");
+
+        return {
+          name: "runtime profile CLI override behavior",
+          ok: true,
+          detail: JSON.stringify({
+            transportId: merged.transportId,
+            remoteUrl: merged.remoteUrl,
+            targetAgent: merged.targetAgent
+          })
+        };
+      }
+    )
+  );
+}
+
+async function testRuntimeProfileMissingRequiredFailsClearly() {
+  return withTempRuntime(async (runtime) =>
+    withTempJsonFile(
+      {
+        profileName: "broken-relay-profile",
+        transport: "local-http-relay"
+      },
+      "broken-relay-profile.json",
+      async (filePath) => {
+        const loadedProfile = await runtime.loadRuntimeProfile(filePath);
+        assert(loadedProfile.ok === false, "Broken profile should fail validation.");
+        assert(
+          loadedProfile.errors.some((error) => error.includes("missing required field remoteUrl")),
+          `Expected clear remoteUrl error, got: ${loadedProfile.errors.join(" | ")}`
+        );
+
+        return {
+          name: "runtime profile missing required values fail clearly",
+          ok: true,
+          detail: loadedProfile.errors.join(" | ")
+        };
+      }
+    )
+  );
+}
+
 async function testRuntimeUnknownTransportFailure() {
   return withTempRuntime(async (runtime) => {
     await seedPendingOutboxMessage(runtime, "unknown transport failure");
@@ -1476,6 +1665,12 @@ async function main() {
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());
   results.push(await testRuntimeProfileInactiveTransportFailure());
   results.push(testRuntimeProfileManualMerge());
+  results.push(await testRuntimeProfileValidateDiagnostics());
+  results.push(await testRuntimeProfileBackedRelayPull());
+  results.push(await testRuntimeProfileBackedHealthCheck());
+  results.push(await testRuntimeProfileBackedDeliveryResolution());
+  results.push(await testRuntimeProfileOverrideBehavior());
+  results.push(await testRuntimeProfileMissingRequiredFailsClearly());
   results.push(await testTransportHealthLocalHttpAgent());
   results.push(await testTransportHealthLocalHttpRelay());
   results.push(await testTransportHealthFileBundle());
