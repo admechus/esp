@@ -16,12 +16,14 @@ import {
   formatTransportHealth,
   formatTransportTable
 } from "./runtime/formatters.js";
+import { applyRuntimeProfile } from "./runtime/runtimeProfiles.js";
 
 function printUsage() {
   console.log(`Usage:
   node src/cli.js list-ports
   node src/cli.js list-profiles
   node src/cli.js list-transports
+  node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js ping --mock
   node src/cli.js info --mock
@@ -66,6 +68,8 @@ function parseArgs(argv) {
     targetAgent: null,
     relayName: null,
     shellName: "unified-client",
+    profilePath: null,
+    profileName: null,
     senderUrl: null,
     receiverUrl: null,
     relayUrl: null,
@@ -144,6 +148,11 @@ function parseArgs(argv) {
     }
     if (token === "--shell-name") {
       options.shellName = rest[index + 1] ?? "unified-client";
+      index += 1;
+      continue;
+    }
+    if (token === "--profile") {
+      options.profilePath = rest[index + 1] ?? null;
       index += 1;
       continue;
     }
@@ -238,6 +247,10 @@ function parseArgs(argv) {
     options.filePath = options.filePath ?? positionals[0] ?? null;
   }
 
+  if (command === "validate-profile") {
+    options.filePath = options.filePath ?? positionals[0] ?? null;
+  }
+
   if (command === "save-envelope") {
     options.text = positionals[0] ?? "";
   }
@@ -255,6 +268,11 @@ async function main() {
     stateDir: args.stateDir,
     agentName: args.agentName
   });
+  const loadedProfile = args.profilePath ? await runtime.loadRuntimeProfile(args.profilePath) : null;
+  if (loadedProfile && args.command !== "validate-profile" && !loadedProfile.ok) {
+    throw new Error(loadedProfile.errors.join(" "));
+  }
+  const resolvedArgs = applyRuntimeProfile(args, loadedProfile);
 
   switch (args.command) {
     case "list-ports": {
@@ -270,11 +288,19 @@ async function main() {
       console.log(formatTransportTable(runtime.listTransports()));
       break;
     }
+    case "validate-profile": {
+      if (!args.filePath) {
+        throw new Error("Missing profile file path.");
+      }
+      const result = await runtime.loadRuntimeProfile(args.filePath);
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
     case "check-transport": {
-      if (!args.transportId) {
+      if (!resolvedArgs.transportId) {
         throw new Error("Missing --transport for check-transport.");
       }
-      const result = await runtime.checkTransportHealth(args.transportId, args);
+      const result = await runtime.checkTransportHealth(resolvedArgs.transportId, resolvedArgs);
       console.log(formatTransportHealth(result));
       break;
     }
@@ -393,11 +419,11 @@ async function main() {
       break;
     }
     case "pull-relay": {
-      const remoteUrl = args.remoteUrl;
+      const remoteUrl = resolvedArgs.remoteUrl;
       if (!remoteUrl) {
         throw new Error("Missing --remote-url for pull-relay.");
       }
-      const response = await runtime.pullPendingFromRelay(remoteUrl, args);
+      const response = await runtime.pullPendingFromRelay(remoteUrl, resolvedArgs);
       console.log(JSON.stringify(response, null, 2));
       break;
     }

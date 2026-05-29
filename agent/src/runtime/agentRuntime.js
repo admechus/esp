@@ -33,6 +33,10 @@ import { normalizeRemoteUrl } from "../transport/transportUrl.js";
 import { discoverWindowsEspPorts } from "../transport/windowsComDiscovery.js";
 import { createMockDongleTransport } from "../transport/mockDongleTransport.js";
 import { createWindowsSerialJsonTransport } from "../transport/windowsSerialJsonTransport.js";
+import {
+  loadRuntimeProfile as loadRuntimeProfileDefinition,
+  validateRuntimeProfile as validateRuntimeProfileDefinition
+} from "./runtimeProfiles.js";
 
 const serialPortCommandQueues = new Map();
 
@@ -288,6 +292,12 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     },
     listTransports() {
       return summarizeTransportCapabilities(transportRegistry);
+    },
+    validateRuntimeProfile(profile) {
+      return validateRuntimeProfileDefinition(profile, transportRegistry);
+    },
+    async loadRuntimeProfile(filePath) {
+      return loadRuntimeProfileDefinition(filePath, transportRegistry);
     },
     async checkTransportHealth(transportId, options = {}) {
       return checkTransportHealthDiagnostic(transportRegistry, transportId, {
