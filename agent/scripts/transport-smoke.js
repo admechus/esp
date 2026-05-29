@@ -9,6 +9,8 @@ import {
   createSignedEnvelope,
   createUnsignedTextEnvelope
 } from "../src/protocol/envelopes.js";
+import { createDeliveryReceipt } from "../src/protocol/receipts.js";
+import { createTransportBundle } from "../src/protocol/transportBundles.js";
 import { createAgentRuntime } from "../src/runtime/agentRuntime.js";
 import {
   applyRuntimeProfile,
@@ -1146,6 +1148,242 @@ async function testRuntimeProfileMissingRequiredFailsClearly() {
   );
 }
 
+async function testRuntimeStateSummaryDiagnostics() {
+  return withTempRuntime(async (runtime) => {
+    const summary = await runtime.getRuntimeStateSummary();
+    assert(summary.counts.peers === 0, "Fresh runtime summary should start with zero peers.");
+    assert(summary.counts.inbox === 0, "Fresh runtime summary should start with zero inbox messages.");
+    assert(summary.counts.outbox === 0, "Fresh runtime summary should start with zero outbox messages.");
+    assert(summary.counts.receipts === 0, "Fresh runtime summary should start with zero receipts.");
+    assert(Array.isArray(summary.derivedState), "Runtime summary should expose derivedState.");
+    assert(Array.isArray(summary.transientState), "Runtime summary should expose transientState.");
+
+    return {
+      name: "runtime state summary diagnostics",
+      ok: true,
+      detail: JSON.stringify({
+        counts: summary.counts,
+        derivedState: summary.derivedState,
+        transientState: summary.transientState
+      })
+    };
+  });
+}
+
+async function testRuntimePathDiagnosticsDefault() {
+  const runtime = createAgentRuntime({
+    agentName: "default-path-audit"
+  });
+  const diagnostics = runtime.getRuntimePathDiagnostics();
+  assert(diagnostics.stateDirSource === "cwd-derived-default", "Default runtime path diagnostics should report cwd-derived-default.");
+  assert(typeof diagnostics.cwd === "string" && diagnostics.cwd, "Runtime path diagnostics should expose cwd.");
+  assert(Array.isArray(diagnostics.cacheFiles) && diagnostics.cacheFiles.length === 3, "Runtime path diagnostics should expose cache files.");
+  assert(Array.isArray(diagnostics.warnings) && diagnostics.warnings.length >= 1, "Runtime path diagnostics should expose warnings.");
+
+  return {
+    name: "runtime path diagnostics default cwd-derived",
+    ok: true,
+    detail: JSON.stringify({
+      cwd: diagnostics.cwd,
+      stateDir: diagnostics.stateDir,
+      stateDirSource: diagnostics.stateDirSource,
+      warnings: diagnostics.warnings
+    })
+  };
+}
+
+async function testRuntimePathDiagnosticsExplicitStateDir() {
+  const stateDir = await mkdtemp(join(tmpdir(), "esp-runtime-path-explicit-"));
+  try {
+    const runtime = createAgentRuntime({
+      stateDir,
+      agentName: "path-audit"
+    });
+    const diagnostics = runtime.getRuntimePathDiagnostics();
+
+    assert(diagnostics.stateDirSource === "explicit", "Explicit stateDir should report explicit source.");
+    assert(diagnostics.userProvidedStateDir === stateDir, "Explicit stateDir should be preserved in diagnostics.");
+    assert(diagnostics.stateDir === stateDir, "Resolved stateDir should match explicit stateDir.");
+
+    return {
+      name: "runtime path diagnostics explicit stateDir",
+      ok: true,
+      detail: JSON.stringify({
+        stateDir: diagnostics.stateDir,
+        stateDirSource: diagnostics.stateDirSource,
+        relayStateDir: diagnostics.relayStateDir
+      })
+    };
+  } finally {
+    await rm(stateDir, { recursive: true, force: true });
+  }
+}
+
+async function testRuntimePathDiagnosticsConsistency() {
+  return withTempRuntime(async (runtime) => {
+    const diagnostics = runtime.getRuntimePathDiagnostics();
+    assert(
+      diagnostics.stateFiles.every((filePath) => filePath.startsWith(diagnostics.stateDir)),
+      "State files should resolve under stateDir."
+    );
+    assert(
+      diagnostics.artifactPaths.outboxDir.startsWith(diagnostics.stateDir) &&
+        diagnostics.artifactPaths.transfersDir.startsWith(diagnostics.stateDir),
+      "Artifact paths should resolve under stateDir."
+    );
+
+    return {
+      name: "runtime path diagnostics consistency",
+      ok: true,
+      detail: JSON.stringify({
+        stateDir: diagnostics.stateDir,
+        stateFiles: diagnostics.stateFiles,
+        artifactPaths: diagnostics.artifactPaths
+      })
+    };
+  });
+}
+
+async function testRuntimeRestartStateReload() {
+  const stateDir = await mkdtemp(join(tmpdir(), "esp-runtime-restart-"));
+  try {
+    const runtime1 = createAgentRuntime({
+      stateDir,
+      agentName: "restart-audit"
+    });
+    await runtime1.rememberSelf({ mock: true });
+    await seedPendingOutboxMessage(runtime1, "restart persisted outbox");
+
+    const { envelope, envelopeId } = await createMockSignedEnvelope("restart inbound");
+    const bundle = createTransportBundle({
+      source: {
+        agentName: "sender-restart"
+      },
+      messages: [
+        {
+          messageId: envelopeId,
+          envelopeId,
+          envelope
+        }
+      ]
+    });
+
+    await runtime1.importTransportBundleData(bundle, {}, {
+      sourceLabel: "bundle:restart-audit",
+      deliveryStatus: "delivered_bundle"
+    });
+
+    const summaryBeforeRestart = await runtime1.getRuntimeStateSummary();
+
+    const runtime2 = createAgentRuntime({
+      stateDir,
+      agentName: "restart-audit"
+    });
+    const summaryAfterRestart = await runtime2.getRuntimeStateSummary();
+
+    assert(summaryAfterRestart.counts.peers === summaryBeforeRestart.counts.peers, "Peer count should survive restart.");
+    assert(summaryAfterRestart.counts.inbox === summaryBeforeRestart.counts.inbox, "Inbox count should survive restart.");
+    assert(summaryAfterRestart.counts.outbox === summaryBeforeRestart.counts.outbox, "Outbox count should survive restart.");
+    assert(summaryAfterRestart.counts.receipts === summaryBeforeRestart.counts.receipts, "Receipt count should survive restart.");
+
+    return {
+      name: "runtime restart persisted state reload",
+      ok: true,
+      detail: JSON.stringify({
+        before: summaryBeforeRestart.counts,
+        after: summaryAfterRestart.counts
+      })
+    };
+  } finally {
+    await rm(stateDir, { recursive: true, force: true });
+  }
+}
+
+async function testDuplicateReceiptProcessing() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "duplicate receipt audit");
+    const outboxMessage = (await runtime.listOutboxMessages())[0];
+    const receipt = createDeliveryReceipt({
+      messageId: outboxMessage.messageId,
+      envelopeId: outboxMessage.envelopeId,
+      senderKeyId: outboxMessage.senderKeyId,
+      receiverAgent: "receiver-audit",
+      sourceAgent: "receiver-audit",
+      relayName: "relay-audit"
+    });
+
+    await runtime.acceptReceipt(receipt, {
+      deliverySource: "http://127.0.0.1:8790",
+      remoteAgent: "receiver-audit",
+      relayReceiptId: "relay:duplicate"
+    });
+    await runtime.acceptReceipt(receipt, {
+      deliverySource: "http://127.0.0.1:8790",
+      remoteAgent: "receiver-audit",
+      relayReceiptId: "relay:duplicate"
+    });
+
+    const receipts = await runtime.listReceipts();
+    const updatedOutbox = await runtime.getOutboxMessage(outboxMessage.messageId);
+
+    assert(receipts.length === 1, `Duplicate receipt processing should keep one stored receipt, got ${receipts.length}.`);
+    assert(updatedOutbox.status === "delivered_remote_ack", "Duplicate receipt processing should keep delivered_remote_ack state.");
+
+    return {
+      name: "runtime duplicate receipt processing",
+      ok: true,
+      detail: JSON.stringify({
+        receiptCount: receipts.length,
+        outboxStatus: updatedOutbox.status,
+        receiptId: receipts[0]?.receiptId ?? null
+      })
+    };
+  });
+}
+
+async function testDuplicateBundleImportHandling() {
+  return withTempRuntime(async (runtime) => {
+    const { envelope, envelopeId } = await createMockSignedEnvelope("duplicate bundle audit");
+    const bundle = createTransportBundle({
+      source: {
+        agentName: "sender-duplicate"
+      },
+      messages: [
+        {
+          messageId: envelopeId,
+          envelopeId,
+          envelope
+        }
+      ]
+    });
+
+    await runtime.importTransportBundleData(bundle, {}, {
+      sourceLabel: "bundle:duplicate-audit",
+      deliveryStatus: "delivered_bundle"
+    });
+    await runtime.importTransportBundleData(bundle, {}, {
+      sourceLabel: "bundle:duplicate-audit",
+      deliveryStatus: "delivered_bundle"
+    });
+
+    const messages = await runtime.listMessages();
+    const receipts = await runtime.listReceipts();
+
+    assert(messages.length === 1, `Duplicate bundle import should keep one inbox message, got ${messages.length}.`);
+    assert(receipts.length === 1, `Duplicate bundle import should keep one receipt, got ${receipts.length}.`);
+
+    return {
+      name: "runtime duplicate bundle import handling",
+      ok: true,
+      detail: JSON.stringify({
+        inboxCount: messages.length,
+        receiptCount: receipts.length,
+        messageId: messages[0]?.messageId ?? null
+      })
+    };
+  });
+}
+
 async function testRuntimeUnknownTransportFailure() {
   return withTempRuntime(async (runtime) => {
     await seedPendingOutboxMessage(runtime, "unknown transport failure");
@@ -1671,6 +1909,13 @@ async function main() {
   results.push(await testRuntimeProfileBackedDeliveryResolution());
   results.push(await testRuntimeProfileOverrideBehavior());
   results.push(await testRuntimeProfileMissingRequiredFailsClearly());
+  results.push(await testRuntimeStateSummaryDiagnostics());
+  results.push(await testRuntimePathDiagnosticsDefault());
+  results.push(await testRuntimePathDiagnosticsExplicitStateDir());
+  results.push(await testRuntimePathDiagnosticsConsistency());
+  results.push(await testRuntimeRestartStateReload());
+  results.push(await testDuplicateReceiptProcessing());
+  results.push(await testDuplicateBundleImportHandling());
   results.push(await testTransportHealthLocalHttpAgent());
   results.push(await testTransportHealthLocalHttpRelay());
   results.push(await testTransportHealthFileBundle());

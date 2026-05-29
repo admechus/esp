@@ -25,3 +25,5 @@
 - [0003-discovery-descriptor-roadmap](./tasks/0003-discovery-descriptor-roadmap.md)
 - [0004-relay-background-sync](./tasks/0004-relay-background-sync.md)
 - [0004-cross-platform-runtime-readiness](./tasks/0004-cross-platform-runtime-readiness.md)
+- [0005-runtime-state-recovery-audit](./tasks/0005-runtime-state-recovery-audit.md)
+- [0006-runtime-state-path-environment-audit](./tasks/0006-runtime-state-path-environment-audit.md)

@@ -1,4 +1,5 @@
 import { basename, resolve } from "node:path";
+import { access, readdir } from "node:fs/promises";
 import { getPlatformProfiles } from "../platform/platformProfiles.js";
 import { createRequest } from "../protocol/commands.js";
 import {
@@ -160,24 +161,37 @@ function getDefaultStateDir() {
   return resolve(process.cwd(), "agent", "state");
 }
 
+function getDefaultRelayStateDir() {
+  return resolve(process.cwd(), "agent", "state-relay");
+}
+
 function resolveStateRoot(stateDir) {
   return resolve(stateDir ?? getDefaultStateDir());
 }
 
 function createStatePaths(stateDir) {
   const root = resolveStateRoot(stateDir);
-    return {
-      root,
-      peersFile: resolve(root, "peers.json"),
-      inboxFile: resolve(root, "inbox.json"),
-      outboxFile: resolve(root, "outbox-log.json"),
-      receiptsFile: resolve(root, "receipts.json"),
-      identityCacheFile: resolve(root, "identity-cache.json"),
-      deviceInfoCacheFile: resolve(root, "device-info-cache.json"),
-      platformIoCacheFile: resolve(root, "platform-io-cache.json"),
-      outboxDir: resolve(root, "outbox"),
-      transfersDir: resolve(root, "transfers")
-    };
+  return {
+    root,
+    peersFile: resolve(root, "peers.json"),
+    inboxFile: resolve(root, "inbox.json"),
+    outboxFile: resolve(root, "outbox-log.json"),
+    receiptsFile: resolve(root, "receipts.json"),
+    identityCacheFile: resolve(root, "identity-cache.json"),
+    deviceInfoCacheFile: resolve(root, "device-info-cache.json"),
+    platformIoCacheFile: resolve(root, "platform-io-cache.json"),
+    outboxDir: resolve(root, "outbox"),
+    transfersDir: resolve(root, "transfers")
+  };
+}
+
+function createRelayStatePaths(stateDir = null) {
+  const root = resolve(stateDir ?? getDefaultRelayStateDir());
+  return {
+    root,
+    queueFile: resolve(root, "relay-queue.json"),
+    transfersFile: resolve(root, "relay-transfers.json")
+  };
 }
 
 function resolveOutputPath(filePath, statePaths) {
@@ -194,6 +208,72 @@ function resolveTransferPath(filePath, statePaths) {
   }
 
   return resolve(filePath);
+}
+
+async function pathExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function countDirectoryEntries(directoryPath) {
+  try {
+    const entries = await readdir(directoryPath);
+    return entries.length;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return 0;
+    }
+    throw error;
+  }
+}
+
+function findRepeatedAdjacentSegments(filePath) {
+  const parts = String(filePath ?? "")
+    .split(/[\\/]+/)
+    .filter(Boolean);
+  const repeated = [];
+
+  for (let index = 1; index < parts.length; index += 1) {
+    if (parts[index].toLowerCase() === parts[index - 1].toLowerCase()) {
+      repeated.push(parts[index]);
+    }
+  }
+
+  return repeated;
+}
+
+function buildRuntimePathWarnings({ cwd, statePaths, stateDirSource, relayStatePaths }) {
+  const warnings = [];
+
+  if (stateDirSource === "cwd-derived-default") {
+    warnings.push(
+      "State directory is derived from the current working directory. Launch location affects the default runtime state path."
+    );
+  }
+
+  const repeatedSegments = [
+    ...findRepeatedAdjacentSegments(statePaths.root),
+    ...findRepeatedAdjacentSegments(relayStatePaths.root)
+  ];
+
+  if (repeatedSegments.length) {
+    warnings.push(
+      `Resolved state paths contain repeated adjacent path segments: ${Array.from(new Set(repeatedSegments)).join(", ")}.`
+    );
+  }
+
+  if (statePaths.root.startsWith(cwd)) {
+    warnings.push("Resolved agent state path lives under the current working directory tree.");
+  }
+
+  return warnings;
 }
 
 function getRequestedTransportId(options = {}) {
@@ -257,6 +337,9 @@ function queueSerialPortCommand(port, commandFactory) {
 
 export function createAgentRuntime({ stateDir, agentName } = {}) {
   const statePaths = createStatePaths(stateDir);
+  const relayStatePaths = createRelayStatePaths();
+  const runtimeCwd = process.cwd();
+  const stateDirSource = stateDir ? "explicit" : "cwd-derived-default";
   const resolvedAgentName = agentName ?? basename(statePaths.root) ?? "local-agent";
   const peerStore = createPeerStore({ peersFile: statePaths.peersFile });
   const inboxStore = createInboxStore({ inboxFile: statePaths.inboxFile });
@@ -287,6 +370,49 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
         transfersDir: statePaths.transfersDir
       };
     },
+    getRuntimePathDiagnostics() {
+      return {
+        cwd: runtimeCwd,
+        stateDir: statePaths.root,
+        stateDirSource,
+        userProvidedStateDir: stateDir ? resolve(stateDir) : null,
+        relayStateDir: relayStatePaths.root,
+        relayStateDirSource: "cwd-derived-default",
+        cacheFiles: [
+          statePaths.identityCacheFile,
+          statePaths.deviceInfoCacheFile,
+          statePaths.platformIoCacheFile
+        ],
+        stateFiles: [
+          statePaths.peersFile,
+          statePaths.inboxFile,
+          statePaths.outboxFile,
+          statePaths.receiptsFile
+        ],
+        artifactPaths: {
+          outboxDir: statePaths.outboxDir,
+          transfersDir: statePaths.transfersDir
+        },
+        relayStateFiles: {
+          queueFile: relayStatePaths.queueFile,
+          transfersFile: relayStatePaths.transfersFile
+        },
+        profileFiles: {
+          mode: "manual-explicit-only",
+          resolutionBase: runtimeCwd,
+          notes: [
+            "Profiles are loaded only when the operator passes --profile.",
+            "Profile paths are resolved against the current working directory."
+          ]
+        },
+        warnings: buildRuntimePathWarnings({
+          cwd: runtimeCwd,
+          statePaths,
+          stateDirSource,
+          relayStatePaths
+        })
+      };
+    },
     listProfiles() {
       return getPlatformProfiles();
     },
@@ -303,6 +429,74 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       return checkTransportHealthDiagnostic(transportRegistry, transportId, {
         remoteUrl: options.remoteUrl ?? null
       });
+    },
+    async getRuntimeStateSummary() {
+      const [peers, inboxMessages, outboxMessages, receipts, identityCacheExists, deviceInfoCacheExists, platformIoCacheExists, outboxArtifactCount, transferArtifactCount] =
+        await Promise.all([
+          peerStore.listPeers(),
+          inboxStore.listMessages(),
+          outboxStore.listMessages(),
+          receiptStore.listReceipts(),
+          pathExists(statePaths.identityCacheFile),
+          pathExists(statePaths.deviceInfoCacheFile),
+          pathExists(statePaths.platformIoCacheFile),
+          countDirectoryEntries(statePaths.outboxDir),
+          countDirectoryEntries(statePaths.transfersDir)
+        ]);
+
+      return {
+        agent: this.getAgentInfo(),
+        counts: {
+          peers: peers.length,
+          inbox: inboxMessages.length,
+          outbox: outboxMessages.length,
+          receipts: receipts.length,
+          outboxArtifacts: outboxArtifactCount,
+          transferArtifacts: transferArtifactCount
+        },
+        persistedState: {
+          files: {
+            peersFile: statePaths.peersFile,
+            inboxFile: statePaths.inboxFile,
+            outboxFile: statePaths.outboxFile,
+            receiptsFile: statePaths.receiptsFile,
+            identityCacheFile: {
+              path: statePaths.identityCacheFile,
+              exists: identityCacheExists
+            },
+            deviceInfoCacheFile: {
+              path: statePaths.deviceInfoCacheFile,
+              exists: deviceInfoCacheExists
+            },
+            platformIoCacheFile: {
+              path: statePaths.platformIoCacheFile,
+              exists: platformIoCacheExists
+            }
+          },
+          directories: {
+            outboxDir: {
+              path: statePaths.outboxDir,
+              artifactCount: outboxArtifactCount
+            },
+            transfersDir: {
+              path: statePaths.transfersDir,
+              artifactCount: transferArtifactCount
+            }
+          }
+        },
+        derivedState: [
+          "message and receipt counts",
+          "transport diagnostics summaries",
+          "profile validation summaries"
+        ],
+        transientState: [
+          "loaded runtime profile objects",
+          "manual CLI option merges",
+          "transport registry instances",
+          "serial command queues",
+          "manual health-check results"
+        ]
+      };
     },
     async listPorts() {
       return discoverWindowsEspPorts();

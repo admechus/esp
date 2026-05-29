@@ -23,6 +23,8 @@ function printUsage() {
   node src/cli.js list-ports
   node src/cli.js list-profiles
   node src/cli.js list-transports
+  node src/cli.js runtime-state
+  node src/cli.js runtime-paths
   node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js export-bundle [--file <path>] [--transport file-bundle] [--profile <path>]
@@ -294,6 +296,16 @@ async function main() {
     }
     case "list-transports": {
       console.log(formatTransportTable(runtime.listTransports()));
+      break;
+    }
+    case "runtime-state": {
+      const result = await runtime.getRuntimeStateSummary();
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+    case "runtime-paths": {
+      const result = await runtime.getRuntimePathDiagnostics();
+      console.log(JSON.stringify(result, null, 2));
       break;
     }
     case "validate-profile": {
