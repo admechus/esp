@@ -204,6 +204,33 @@ For day-to-day lab work, the full local stack can now be managed through [tools/
 - [docs/tasks/](./docs/tasks)
 
 
+## Platform support
+
+Current runtime and transport maturity work is split between cross-platform host logic and
+Windows-first hardware workflows.
+
+Cross-platform today:
+
+- runtime profiles and manual profile validation
+- local HTTP agent and relay transports
+- file-bundle transport
+- transport metadata, diagnostics, manual targeting, and explicit health checks
+- transport smoke validation
+
+Windows-first today:
+
+- `COM` port discovery
+- Windows serial JSON transport
+- ESP hardware serial workflows and examples that use `COMx`
+
+Planned later:
+
+- Linux and Unix serial discovery
+- Linux serial JSON transport
+- Raspberry Pi deployment notes
+- old laptop field-node notes
+
+
 
 ## License
 
