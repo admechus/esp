@@ -18,8 +18,10 @@ import {
   assertTransportSendResult
 } from "../src/transport/transportAdapter.js";
 import {
+  checkTransportHealth,
   getTransportById,
   listTransportMetadata,
+  summarizeTransportHealth,
   summarizeTransportCapabilities
 } from "../src/transport/transportDiagnostics.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
@@ -402,6 +404,182 @@ async function testYggdrasilDirectSendShape() {
         remoteEntity: result.remoteEntity,
         accepted: result.accepted,
         receipts: result.receipts
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+async function testTransportHealthLocalHttpAgent() {
+  const registry = createTransportRegistry({
+    localHttpAgent: createLocalHttpAgentTransport()
+  });
+  const server = await withJsonServer(async (request) => {
+    assert(request.method === "GET" && request.url === "/health", "Agent health should hit /health.");
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        service: "esp-messenger-agent",
+        agent: { name: "receiver-health" }
+      }
+    };
+  });
+
+  try {
+    const result = await checkTransportHealth(registry, "local-http-agent", {
+      remoteUrl: server.baseUrl
+    });
+    assert(result.id === "local-http-agent", "Agent health should preserve id.");
+    assert(result.health.remoteUrl === server.baseUrl, "Agent health should preserve remoteUrl.");
+
+    return {
+      name: "transport health local-http-agent",
+      ok: true,
+      detail: JSON.stringify({
+        id: result.id,
+        remoteUrl: result.health.remoteUrl,
+        payload: result.health.payload
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+async function testTransportHealthLocalHttpRelay() {
+  const registry = createTransportRegistry({
+    localHttpRelay: createLocalHttpRelayTransport()
+  });
+  const server = await withJsonServer(async (request) => {
+    assert(request.method === "GET" && request.url === "/health", "Relay health should hit /health.");
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        service: "esp-messenger-relay",
+        relay: { name: "gateway-health" }
+      }
+    };
+  });
+
+  try {
+    const result = await checkTransportHealth(registry, "local-http-relay", {
+      remoteUrl: server.baseUrl
+    });
+    assert(result.id === "local-http-relay", "Relay health should preserve id.");
+    assert(result.health.remoteUrl === server.baseUrl, "Relay health should preserve remoteUrl.");
+
+    return {
+      name: "transport health local-http-relay",
+      ok: true,
+      detail: JSON.stringify({
+        id: result.id,
+        remoteUrl: result.health.remoteUrl,
+        payload: result.health.payload
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+async function testTransportHealthFileBundle() {
+  const registry = createTransportRegistry({
+    fileBundle: createFileBundleTransport({
+      readJsonFile,
+      writeJsonFile
+    })
+  });
+  const result = await checkTransportHealth(registry, "file-bundle");
+  assert(result.id === "file-bundle", "File-bundle health should preserve id.");
+  assert(result.health.ok === true, "File-bundle health should be statically ok.");
+
+  return {
+    name: "transport health file-bundle",
+    ok: true,
+    detail: JSON.stringify(result.health)
+  };
+}
+
+async function testTransportHealthUnknownFailure() {
+  return withTempRuntime(async (runtime) => {
+    let thrown = null;
+    try {
+      await runtime.checkTransportHealth("unknown-transport");
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert(thrown instanceof Error, "Unknown transport health should throw.");
+    assert(
+      thrown.message.includes("Transport unknown-transport is not active in this registry."),
+      `Unexpected unknown transport health error: ${thrown?.message}`
+    );
+
+    return {
+      name: "transport health unknown transport fails clearly",
+      ok: true,
+      detail: thrown.message
+    };
+  });
+}
+
+async function testTransportHealthRuntimeYggFailure() {
+  return withTempRuntime(async (runtime) => {
+    let thrown = null;
+    try {
+      await runtime.checkTransportHealth("yggdrasil-direct", {
+        remoteUrl: "http://127.0.0.1:9999"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert(thrown instanceof Error, "Inactive runtime ygg health should throw.");
+    assert(
+      thrown.message.includes("Transport yggdrasil-direct is not active in this registry."),
+      `Unexpected runtime ygg health error: ${thrown?.message}`
+    );
+
+    return {
+      name: "transport health runtime yggdrasil-direct is rejected",
+      ok: true,
+      detail: thrown.message
+    };
+  });
+}
+
+async function testTransportHealthDiagnosticsYggRegistry() {
+  const registry = createTransportRegistry({
+    yggdrasilDirect: createYggdrasilDirectTransport()
+  });
+  const server = await withJsonServer(async (request) => {
+    assert(request.method === "GET" && request.url === "/health", "Ygg health should hit /health.");
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        service: "ygg-peer",
+        peer: { name: "ygg-peer-health" }
+      }
+    };
+  });
+
+  try {
+    const result = await checkTransportHealth(registry, "yggdrasil-direct", {
+      remoteUrl: server.baseUrl
+    });
+    assert(result.experimental === true, "Diagnostics ygg health should remain experimental.");
+
+    return {
+      name: "transport health diagnostics ygg test registry",
+      ok: true,
+      detail: JSON.stringify({
+        id: result.id,
+        experimental: result.experimental,
+        remoteUrl: result.health.remoteUrl
       })
     };
   } finally {
@@ -849,6 +1027,27 @@ function testTransportDiagnosticsYggTestRegistry() {
   };
 }
 
+async function testTransportHealthSummaryExplicitOnly() {
+  const registry = createTransportRegistry({
+    fileBundle: createFileBundleTransport({
+      readJsonFile,
+      writeJsonFile
+    })
+  });
+  const result = await summarizeTransportHealth(registry);
+  assert(Array.isArray(result) && result.length === 1, "Transport health summary should return one result.");
+  assert(result[0].id === "file-bundle", "Transport health summary should preserve file-bundle id.");
+
+  return {
+    name: "transport health summary explicit-only",
+    ok: true,
+    detail: JSON.stringify(result.map((entry) => ({
+      id: entry.id,
+      ok: entry.health?.ok ?? null
+    })))
+  };
+}
+
 function testTransportSendNegativePaths() {
   return [
     expectValidatorFailure({
@@ -1045,6 +1244,13 @@ async function main() {
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
   results.push(await testYggdrasilDirectSendShape());
+  results.push(await testTransportHealthLocalHttpAgent());
+  results.push(await testTransportHealthLocalHttpRelay());
+  results.push(await testTransportHealthFileBundle());
+  results.push(await testTransportHealthUnknownFailure());
+  results.push(await testTransportHealthRuntimeYggFailure());
+  results.push(await testTransportHealthDiagnosticsYggRegistry());
+  results.push(await testTransportHealthSummaryExplicitOnly());
   results.push(await testRuntimeDefaultDirectDeliveryPath());
   results.push(await testRuntimeDefaultRelayDeliveryPath());
   results.push(await testRuntimeExplicitLocalHttpAgentSelection());

@@ -93,3 +93,21 @@ export function formatTransportTable(transports) {
     })
     .join("\n\n");
 }
+
+export function formatTransportHealth(transportHealth) {
+  const health = transportHealth.health ?? {};
+  const payloadSummary =
+    health.payload && typeof health.payload === "object"
+      ? JSON.stringify(health.payload)
+      : health.payload ?? null;
+
+  return [
+    `${transportHealth.label ?? transportHealth.id} (${transportHealth.id})`,
+    `  kind: ${transportHealth.kind}`,
+    `  network: ${transportHealth.networkClass ?? "unknown"}`,
+    `  experimental: ${transportHealth.experimental ? "yes" : "no"}`,
+    `  ok: ${typeof health.ok === "boolean" ? (health.ok ? "yes" : "no") : "unknown"}`,
+    `  remoteUrl: ${health.remoteUrl ?? "n/a"}`,
+    `  payload: ${payloadSummary ?? "n/a"}`
+  ].join("\n");
+}

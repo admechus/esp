@@ -13,6 +13,7 @@ import {
   formatPeerTable,
   formatPortTable,
   formatProfileTable,
+  formatTransportHealth,
   formatTransportTable
 } from "./runtime/formatters.js";
 
@@ -21,6 +22,7 @@ function printUsage() {
   node src/cli.js list-ports
   node src/cli.js list-profiles
   node src/cli.js list-transports
+  node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js ping --mock
   node src/cli.js info --mock
   node src/cli.js pull-relay [--remote-url http://127.0.0.1:8790] [--transport local-http-relay]
@@ -266,6 +268,14 @@ async function main() {
     }
     case "list-transports": {
       console.log(formatTransportTable(runtime.listTransports()));
+      break;
+    }
+    case "check-transport": {
+      if (!args.transportId) {
+        throw new Error("Missing --transport for check-transport.");
+      }
+      const result = await runtime.checkTransportHealth(args.transportId, args);
+      console.log(formatTransportHealth(result));
       break;
     }
     case "ping": {
