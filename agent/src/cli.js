@@ -23,11 +23,11 @@ function printUsage() {
   node src/cli.js list-transports
   node src/cli.js ping --mock
   node src/cli.js info --mock
+  node src/cli.js pull-relay [--remote-url http://127.0.0.1:8790] [--transport local-http-relay]
   node src/cli.js serve --port COM9 [--listen 8787] [--host 127.0.0.1] [--state-dir .\\agent\\state] [--agent-name sender] [--remote-url http://127.0.0.1:8788] [--sync-interval-ms 15000]
   node src/cli.js serve-relay [--listen 8790] [--host 127.0.0.1] [--state-dir .\\agent\\state-relay] [--relay-name gateway] [--route receiver=http://127.0.0.1:8788]
   node src/cli.js serve-unified [--listen 8795] [--sender-url http://127.0.0.1:8787 --receiver-url http://127.0.0.1:8788 --relay-url http://127.0.0.1:8790]
   node src/cli.js serve-unified [--listen 8795] [--sender-port COM9] [--receiver-port COM8]
-  node src/cli.js pull-relay [--remote-url http://127.0.0.1:8790]
   node src/cli.js gen-identity --port COM9
   node src/cli.js get-public-id --port COM9
   node src/cli.js identity-summary --port COM9
@@ -77,6 +77,7 @@ function parseArgs(argv) {
     relayStateDir: null,
     routes: [],
     syncIntervalMs: 15000,
+    transportId: null,
     listenPort: 8787,
     host: "127.0.0.1"
   };
@@ -206,6 +207,11 @@ function parseArgs(argv) {
     }
     if (token === "--sync-interval-ms") {
       options.syncIntervalMs = Number.parseInt(rest[index + 1] ?? "15000", 10);
+      index += 1;
+      continue;
+    }
+    if (token === "--transport") {
+      options.transportId = rest[index + 1] ?? null;
       index += 1;
       continue;
     }

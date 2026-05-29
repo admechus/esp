@@ -76,7 +76,8 @@ function buildDeviceOptions(baseOptions, body = {}) {
     toKeyId: body.toKeyId ?? baseOptions.toKeyId,
     filePath: body.filePath ?? baseOptions.filePath,
     remoteUrl: body.remoteUrl ?? baseOptions.remoteUrl,
-    targetAgent: body.targetAgent ?? baseOptions.targetAgent
+    targetAgent: body.targetAgent ?? baseOptions.targetAgent,
+    transportId: body.transportId ?? body.transport ?? baseOptions.transportId ?? null
   };
 }
 

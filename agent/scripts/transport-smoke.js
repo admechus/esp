@@ -3,6 +3,13 @@ import { createServer } from "node:http";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
+import {
+  createEnvelopeId,
+  createEnvelopeSigningBytes,
+  createSignedEnvelope,
+  createUnsignedTextEnvelope
+} from "../src/protocol/envelopes.js";
+import { createAgentRuntime } from "../src/runtime/agentRuntime.js";
 import { readJsonFile, writeJsonFile } from "../src/storage/jsonFiles.js";
 import {
   assertTransportFileResult,
@@ -18,6 +25,7 @@ import {
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
+import { createMockDongleTransport } from "../src/transport/mockDongleTransport.js";
 import { createTransportRegistry } from "../src/transport/transportRegistry.js";
 import { createYggdrasilDirectTransport } from "../src/transport/yggdrasilDirectTransport.js";
 
@@ -83,6 +91,74 @@ async function withJsonServer(handler) {
       );
     }
   };
+}
+
+async function withTempRuntime(fn, { agentName = "sender" } = {}) {
+  const stateDir = await mkdtemp(join(tmpdir(), "esp-runtime-smoke-"));
+  const runtime = createAgentRuntime({
+    stateDir,
+    agentName
+  });
+
+  try {
+    return await fn(runtime, stateDir);
+  } finally {
+    await rm(stateDir, { recursive: true, force: true });
+  }
+}
+
+async function createMockSignedEnvelope(text) {
+  const mockTransport = createMockDongleTransport();
+  const identity = await mockTransport.send({
+    id: 1,
+    cmd: "GET_PUBLIC_ID"
+  });
+  const unsignedEnvelope = createUnsignedTextEnvelope({
+    sender: {
+      algorithm: identity.algorithm,
+      curve: identity.curve,
+      keyId: identity.keyId,
+      fingerprintHex: identity.fingerprintHex,
+      publicKeyBase64: identity.publicKeyBase64
+    },
+    text
+  });
+  const signingBytes = createEnvelopeSigningBytes(unsignedEnvelope);
+  const signature = await mockTransport.send({
+    id: 2,
+    cmd: "SIGN_BYTES",
+    payloadBase64: signingBytes.toString("base64")
+  });
+  const envelope = createSignedEnvelope(unsignedEnvelope, signature.signatureBase64);
+
+  return {
+    envelope,
+    envelopeId: createEnvelopeId(envelope),
+    senderKeyId: identity.keyId
+  };
+}
+
+async function seedPendingOutboxMessage(runtime, text = "transport smoke hello") {
+  const { envelope, envelopeId, senderKeyId } = await createMockSignedEnvelope(text);
+  const outboxFile = runtime.getAgentInfo().outboxFile;
+  await writeJsonFile(outboxFile, {
+    version: 1,
+    messages: [
+      {
+        messageId: envelopeId,
+        envelopeId,
+        envelopeCreatedAt: envelope.createdAt,
+        status: "saved",
+        senderKeyId,
+        recipientKeyId: null,
+        recipientKnown: false,
+        locallyVerified: true,
+        textPreview: text.slice(0, 160),
+        sourceFilePath: `outbox:${envelopeId}`,
+        envelope
+      }
+    ]
+  });
 }
 
 async function testLocalHttpAgentErrorHandling() {
@@ -331,6 +407,297 @@ async function testYggdrasilDirectSendShape() {
   } finally {
     await server.close();
   }
+}
+
+async function testRuntimeDefaultDirectDeliveryPath() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "default direct path");
+    const server = await withJsonServer(async (request) => {
+      assert(
+        request.method === "POST" && request.url === "/transport/accept-bundle",
+        "Default direct delivery should hit /transport/accept-bundle."
+      );
+
+      return {
+        statusCode: 200,
+        body: {
+          ok: true,
+          agent: { name: "receiver-default" },
+          result: {
+            accepted: [],
+            receipts: []
+          }
+        }
+      };
+    });
+
+    try {
+      const result = await runtime.deliverTransportBundle(server.baseUrl, { mock: true });
+      assert(result.targetAgent === null, "Default direct delivery should not target relay agent.");
+      assert(result.remoteAgent?.name === "receiver-default", "Default direct delivery should preserve remote agent.");
+
+      return {
+        name: "runtime default direct delivery path",
+        ok: true,
+        detail: JSON.stringify({
+          remoteAgent: result.remoteAgent?.name ?? null,
+          queued: result.queued,
+          messageCount: result.messageCount
+        })
+      };
+    } finally {
+      await server.close();
+    }
+  });
+}
+
+async function testRuntimeDefaultRelayDeliveryPath() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "default relay path");
+    const server = await withJsonServer(async (request) => {
+      assert(
+        request.method === "POST" && request.url === "/relay/deliver",
+        "Default relay delivery should hit /relay/deliver."
+      );
+
+      return {
+        statusCode: 200,
+        body: {
+          ok: true,
+          relay: { name: "gateway-default" },
+          result: {
+            accepted: [],
+            receipts: [],
+            queued: true,
+            queueId: "queue:default"
+          }
+        }
+      };
+    });
+
+    try {
+      const result = await runtime.deliverTransportBundle(server.baseUrl, {
+        mock: true,
+        targetAgent: "receiver-default"
+      });
+      assert(result.targetAgent === "receiver-default", "Default relay delivery should preserve targetAgent.");
+      assert(result.queued === true, "Default relay delivery should preserve relay queueing state.");
+
+      return {
+        name: "runtime default relay delivery path",
+        ok: true,
+        detail: JSON.stringify({
+          remoteAgent: result.remoteAgent?.name ?? null,
+          queueId: result.queueId,
+          queued: result.queued,
+          targetAgent: result.targetAgent
+        })
+      };
+    } finally {
+      await server.close();
+    }
+  });
+}
+
+async function testRuntimeExplicitLocalHttpAgentSelection() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "explicit agent transport");
+    const server = await withJsonServer(async (request) => {
+      assert(
+        request.method === "POST" && request.url === "/transport/accept-bundle",
+        "Explicit local-http-agent selection should hit /transport/accept-bundle."
+      );
+
+      return {
+        statusCode: 200,
+        body: {
+          ok: true,
+          agent: { name: "receiver-explicit-agent" },
+          result: {
+            accepted: [],
+            receipts: []
+          }
+        }
+      };
+    });
+
+    try {
+      const result = await runtime.deliverTransportBundle(server.baseUrl, {
+        mock: true,
+        transportId: "local-http-agent"
+      });
+      assert(result.remoteAgent?.name === "receiver-explicit-agent", "Explicit local-http-agent should be used.");
+
+      return {
+        name: "runtime explicit local-http-agent selection",
+        ok: true,
+        detail: JSON.stringify({
+          transportId: "local-http-agent",
+          remoteAgent: result.remoteAgent?.name ?? null,
+          queued: result.queued
+        })
+      };
+    } finally {
+      await server.close();
+    }
+  });
+}
+
+async function testRuntimeExplicitLocalHttpRelayPullSelection() {
+  return withTempRuntime(async (runtime) => {
+    const server = await withJsonServer(async (request) => {
+      assert(
+        request.method === "POST" && request.url === "/relay/pull",
+        "Explicit local-http-relay pull should hit /relay/pull."
+      );
+
+      return {
+        statusCode: 200,
+        body: {
+          ok: true,
+          relay: { name: "gateway-explicit-relay" },
+          result: {
+            pulledCount: 1,
+            deliveredCount: 1,
+            failedCount: 0,
+            remainingCount: 0,
+            delivered: [{ transferId: "transfer:relay:1" }],
+            failed: []
+          }
+        }
+      };
+    });
+
+    try {
+      const result = await runtime.pullPendingFromRelay(server.baseUrl, {
+        transportId: "local-http-relay",
+        pullTargetAgent: "receiver-explicit-relay"
+      });
+      assert(result.targetAgent === "receiver-explicit-relay", "Explicit local-http-relay pull should preserve target.");
+      assert(result.pulledCount === 1, "Explicit local-http-relay pull should preserve pulledCount.");
+
+      return {
+        name: "runtime explicit local-http-relay pull selection",
+        ok: true,
+        detail: JSON.stringify({
+          transportId: "local-http-relay",
+          targetAgent: result.targetAgent,
+          pulledCount: result.pulledCount
+        })
+      };
+    } finally {
+      await server.close();
+    }
+  });
+}
+
+async function testRuntimeExplicitFileBundleSelection() {
+  return withTempRuntime(async (runtime, stateDir) => {
+    const bundleFile = join(stateDir, "explicit-file-bundle.json");
+    await seedPendingOutboxMessage(runtime, "explicit file bundle");
+    const exported = await runtime.exportOutboxBundle({
+      mock: true,
+      transportId: "file-bundle",
+      filePath: bundleFile
+    });
+    const imported = await runtime.importTransportBundle(bundleFile, {
+      transportId: "file-bundle"
+    });
+
+    assert(exported.filePath === bundleFile, "Explicit file-bundle export should preserve file path.");
+    assert(imported.filePath === bundleFile, "Explicit file-bundle import should preserve file path.");
+
+    return {
+      name: "runtime explicit file-bundle selection",
+      ok: true,
+      detail: JSON.stringify({
+        transportId: "file-bundle",
+        exportedFile: exported.filePath,
+        importedCount: imported.messageCount
+      })
+    };
+  });
+}
+
+async function testRuntimeUnknownTransportFailure() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "unknown transport failure");
+    let thrown = null;
+    try {
+      await runtime.deliverTransportBundle("http://127.0.0.1:9999", {
+        mock: true,
+        transportId: "unknown-transport"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert(thrown instanceof Error, "Unknown transport selection should throw.");
+    assert(
+      thrown.message.includes("Transport unknown-transport is not active in this runtime."),
+      `Unexpected unknown transport error: ${thrown?.message}`
+    );
+
+    return {
+      name: "runtime unknown transport selection fails clearly",
+      ok: true,
+      detail: thrown.message
+    };
+  });
+}
+
+async function testRuntimeUnsupportedTransportFailure() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "unsupported file transport");
+    let thrown = null;
+    try {
+      await runtime.deliverTransportBundle("http://127.0.0.1:9999", {
+        mock: true,
+        transportId: "file-bundle"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert(thrown instanceof Error, "Unsupported runtime transport should throw.");
+    assert(
+      thrown.message.includes("Transport file-bundle is not supported for remote bundle delivery."),
+      `Unexpected unsupported transport error: ${thrown?.message}`
+    );
+
+    return {
+      name: "runtime unsupported transport for delivery fails clearly",
+      ok: true,
+      detail: thrown.message
+    };
+  });
+}
+
+async function testRuntimeYggTransportFailure() {
+  return withTempRuntime(async (runtime) => {
+    await seedPendingOutboxMessage(runtime, "ygg inactive transport");
+    let thrown = null;
+    try {
+      await runtime.deliverTransportBundle("http://127.0.0.1:9999", {
+        mock: true,
+        transportId: "yggdrasil-direct"
+      });
+    } catch (error) {
+      thrown = error;
+    }
+
+    assert(thrown instanceof Error, "Inactive yggdrasil-direct transport should throw.");
+    assert(
+      thrown.message.includes("Transport yggdrasil-direct is not active in this runtime."),
+      `Unexpected ygg transport error: ${thrown?.message}`
+    );
+
+    return {
+      name: "runtime yggdrasil-direct active delivery hint is rejected",
+      ok: true,
+      detail: thrown.message
+    };
+  });
 }
 
 function testRegisteredTransportMetadata() {
@@ -678,6 +1045,14 @@ async function main() {
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
   results.push(await testYggdrasilDirectSendShape());
+  results.push(await testRuntimeDefaultDirectDeliveryPath());
+  results.push(await testRuntimeDefaultRelayDeliveryPath());
+  results.push(await testRuntimeExplicitLocalHttpAgentSelection());
+  results.push(await testRuntimeExplicitLocalHttpRelayPullSelection());
+  results.push(await testRuntimeExplicitFileBundleSelection());
+  results.push(await testRuntimeUnknownTransportFailure());
+  results.push(await testRuntimeUnsupportedTransportFailure());
+  results.push(await testRuntimeYggTransportFailure());
   results.push(testRegisteredTransportMetadata());
   results.push(testTransportDiagnosticsStableVisibility());
   results.push(testTransportDiagnosticsYggTestRegistry());

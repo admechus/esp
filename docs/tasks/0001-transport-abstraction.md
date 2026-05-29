@@ -15,6 +15,7 @@ Completed:
 - Phase 3 transport result contract stabilization completed
 - Stage 3 Step 2 transport metadata passports completed
 - Stage 3 Step 3 transport diagnostics visibility completed
+- Stage 3 Step 4 manual transport targeting hints completed
 
 Current adapter modules in the codebase:
 
@@ -112,6 +113,7 @@ The next deeper phase should focus on:
 - deciding whether low-risk route and queue listing contracts should be normalized in the same style
 - continuing runtime decoupling only where transport and business boundaries remain clear
 - preserving diagnostics as visibility-only while resisting premature transport selection logic
+- keeping manual transport hints operator-controlled and explicit, without promoting them into automatic routing
 
 This phase should still avoid:
 
@@ -128,6 +130,7 @@ The next deeper phase should focus on:
 - optional normalization of route and queue listing results
 - deeper runtime decoupling from transport details where that does not blur business ownership
 - keeping metadata and diagnostics descriptive only until routing policy is explicitly designed
+- adding explicit operator-facing transport hints only where active runtime transports are already known and safe
 
 ## Acceptance shape
 

@@ -20,6 +20,7 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 - the adapter has a descriptive metadata passport
 - the adapter can appear in diagnostics-only registries without being wired into runtime delivery
 - the adapter can be listed by read-only transport diagnostics helpers in test-only registries
+- active runtime delivery hints still reject `yggdrasil-direct` because it is not wired into runtime
 - the adapter can be smoke-tested locally without Yggdrasil installed
 
 ## What Is Not Implemented Yet

@@ -197,6 +197,30 @@ function normalizeRemoteUrl(remoteUrl) {
   return url.toString().replace(/\/+$/g, "");
 }
 
+function getRequestedTransportId(options = {}) {
+  return options.transportId ?? options.transport ?? null;
+}
+
+function requireRuntimeTransport(registry, transportId, purpose, allowedIds) {
+  const requestedTransportId = String(transportId ?? "").trim();
+  if (!requestedTransportId) {
+    throw new Error(`Missing transport id for ${purpose}.`);
+  }
+
+  const transport = registry.get(requestedTransportId);
+  if (!transport) {
+    throw new Error(`Transport ${requestedTransportId} is not active in this runtime.`);
+  }
+
+  if (!allowedIds.includes(requestedTransportId)) {
+    throw new Error(
+      `Transport ${requestedTransportId} is not supported for ${purpose}. Allowed: ${allowedIds.join(", ")}.`
+    );
+  }
+
+  return transport;
+}
+
 function getOutboxStatusFromReceipt(receiptStatus, currentStatus) {
   if (receiptStatus === "read_remote") {
     return "read_remote";
@@ -804,7 +828,15 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     async exportOutboxBundle(options = {}) {
       const filePath = resolveTransferPath(options.filePath, statePaths);
       const { bundle, pendingMessages } = await this.createPendingTransportBundle(options);
-      const fileBundleTransport = transportRegistry.require("file-bundle");
+      const requestedTransportId = getRequestedTransportId(options);
+      const fileBundleTransport = requestedTransportId
+        ? requireRuntimeTransport(
+            transportRegistry,
+            requestedTransportId,
+            "bundle export",
+            ["file-bundle"]
+          )
+        : transportRegistry.require("file-bundle");
 
       await fileBundleTransport.exportBundle({ filePath, bundle });
 
@@ -873,7 +905,15 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     },
     async importTransportBundle(filePath, options = {}) {
       const resolvedPath = resolve(filePath);
-      const fileBundleTransport = transportRegistry.require("file-bundle");
+      const requestedTransportId = getRequestedTransportId(options);
+      const fileBundleTransport = requestedTransportId
+        ? requireRuntimeTransport(
+            transportRegistry,
+            requestedTransportId,
+            "bundle import",
+            ["file-bundle"]
+          )
+        : transportRegistry.require("file-bundle");
       const imported = await fileBundleTransport.importBundle({ filePath: resolvedPath });
       const bundle = imported.bundle;
       const result = await this.importTransportBundleData(bundle, options, {
@@ -891,9 +931,15 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
       const { bundle, pendingMessages } = await this.createPendingTransportBundle(options);
       const targetAgent = options.targetAgent ?? null;
-      const transport = transportRegistry.require(
-        targetAgent ? "local-http-relay" : "local-http-agent"
-      );
+      const requestedTransportId = getRequestedTransportId(options);
+      const transport = requestedTransportId
+        ? requireRuntimeTransport(
+            transportRegistry,
+            requestedTransportId,
+            "remote bundle delivery",
+            ["local-http-agent", "local-http-relay"]
+          )
+        : transportRegistry.require(targetAgent ? "local-http-relay" : "local-http-agent");
       const deliveryResult = await transport.sendBundle({
         target: targetAgent,
         bundle,
@@ -952,7 +998,15 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
     async pullPendingFromRelay(remoteUrl, options = {}) {
       const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
       const targetAgent = options.pullTargetAgent ?? resolvedAgentName;
-      const relayTransport = transportRegistry.require("local-http-relay");
+      const requestedTransportId = getRequestedTransportId(options);
+      const relayTransport = requestedTransportId
+        ? requireRuntimeTransport(
+            transportRegistry,
+            requestedTransportId,
+            "relay pull recovery",
+            ["local-http-relay"]
+          )
+        : transportRegistry.require("local-http-relay");
       const pullResult = await relayTransport.pullQueued({
         target: targetAgent,
         options: {
