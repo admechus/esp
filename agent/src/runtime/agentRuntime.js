@@ -29,6 +29,7 @@ import {
   summarizeTransportCapabilities
 } from "../transport/transportDiagnostics.js";
 import { createTransportRegistry } from "../transport/transportRegistry.js";
+import { normalizeRemoteUrl } from "../transport/transportUrl.js";
 import { discoverWindowsEspPorts } from "../transport/windowsComDiscovery.js";
 import { createMockDongleTransport } from "../transport/mockDongleTransport.js";
 import { createWindowsSerialJsonTransport } from "../transport/windowsSerialJsonTransport.js";
@@ -189,15 +190,6 @@ function resolveTransferPath(filePath, statePaths) {
   }
 
   return resolve(filePath);
-}
-
-function normalizeRemoteUrl(remoteUrl) {
-  if (!remoteUrl) {
-    throw new Error("Missing remoteUrl for transport delivery.");
-  }
-
-  const url = new URL(remoteUrl);
-  return url.toString().replace(/\/+$/g, "");
 }
 
 function getRequestedTransportId(options = {}) {
@@ -807,7 +799,10 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
         };
       }
 
-      const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        remoteUrl,
+        "Missing remoteUrl for transport delivery."
+      );
       const forwardResponse = await fetch(`${normalizedRemoteUrl}/relay/forward-receipt`, {
         method: "POST",
         headers: {
@@ -936,7 +931,10 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       };
     },
     async deliverTransportBundle(remoteUrl, options = {}) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        remoteUrl,
+        "Missing remoteUrl for transport delivery."
+      );
       const { bundle, pendingMessages } = await this.createPendingTransportBundle(options);
       const targetAgent = options.targetAgent ?? null;
       const requestedTransportId = getRequestedTransportId(options);
@@ -1004,7 +1002,10 @@ export function createAgentRuntime({ stateDir, agentName } = {}) {
       };
     },
     async pullPendingFromRelay(remoteUrl, options = {}) {
-      const normalizedRemoteUrl = normalizeRemoteUrl(remoteUrl);
+      const normalizedRemoteUrl = normalizeRemoteUrl(
+        remoteUrl,
+        "Missing remoteUrl for transport delivery."
+      );
       const targetAgent = options.pullTargetAgent ?? resolvedAgentName;
       const requestedTransportId = getRequestedTransportId(options);
       const relayTransport = requestedTransportId
