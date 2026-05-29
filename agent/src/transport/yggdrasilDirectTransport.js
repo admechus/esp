@@ -16,6 +16,14 @@ export function createYggdrasilDirectTransport() {
       deliveryModes: ["direct-http", "ipv6-direct-spike"],
       networkClass: "overlay-ipv6-spike",
       experimental: true,
+      configRequirements: [
+        {
+          name: "remoteUrl",
+          required: true,
+          description: "Remote Yggdrasil peer base URL for experimental IPv6-style direct delivery and health checks.",
+          example: "http://[200:1111:2222:3333:4444:5555:6666:7777]:8788"
+        }
+      ],
       supports: {
         healthCheck: true,
         directSend: true,

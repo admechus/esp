@@ -1,4 +1,12 @@
 /**
+ * @typedef {Object} TransportConfigRequirement
+ * @property {string} name Stable operator-facing configuration field name.
+ * @property {boolean} required Whether the input is required for the relevant operation.
+ * @property {string} description Short description of why the input is needed.
+ * @property {string} example Example operator-provided value.
+ */
+
+/**
  * @typedef {Object} TransportMetadata
  * @property {string} id Stable adapter identifier.
  * @property {string} kind Transport family or implementation kind.
@@ -8,6 +16,7 @@
  * @property {string[]} deliveryModes Descriptive delivery mode tags.
  * @property {string} networkClass Descriptive network class tag.
  * @property {boolean} experimental Whether the transport is experimental.
+ * @property {TransportConfigRequirement[]} [configRequirements] Descriptive operator-provided configuration inputs.
  * @property {{
  *   healthCheck: boolean,
  *   directSend: boolean,
@@ -139,6 +148,14 @@ function assertBoolean(value, fieldName, context) {
   }
 }
 
+function assertConfigRequirement(value, context) {
+  assertObject(value, context);
+  assertString(value.name, "name", context);
+  assertBoolean(value.required, "required", context);
+  assertString(value.description, "description", context);
+  assertString(value.example, "example", context);
+}
+
 /**
  * @param {unknown} metadata
  * @param {string} [context]
@@ -154,6 +171,12 @@ export function assertTransportMetadata(metadata, context = "TransportMetadata")
   assertArray(metadata.deliveryModes, "deliveryModes", context);
   assertString(metadata.networkClass, "networkClass", context);
   assertBoolean(metadata.experimental, "experimental", context);
+  if (metadata.configRequirements !== undefined) {
+    assertArray(metadata.configRequirements, "configRequirements", context);
+    metadata.configRequirements.forEach((requirement, index) => {
+      assertConfigRequirement(requirement, `${context}.configRequirements[${index}]`);
+    });
+  }
   assertObject(metadata.supports, `${context}.supports`);
   assertBoolean(metadata.supports.healthCheck, "supports.healthCheck", context);
   assertBoolean(metadata.supports.directSend, "supports.directSend", context);

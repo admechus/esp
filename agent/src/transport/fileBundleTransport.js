@@ -16,6 +16,14 @@ export function createFileBundleTransport({ readJsonFile, writeJsonFile }) {
       deliveryModes: ["file-export", "file-import", "offline-carry"],
       networkClass: "offline-file",
       experimental: false,
+      configRequirements: [
+        {
+          name: "filePath",
+          required: true,
+          description: "Filesystem path for bundle export or import operations.",
+          example: "C:\\temp\\bundle.json"
+        }
+      ],
       supports: {
         healthCheck: true,
         directSend: false,

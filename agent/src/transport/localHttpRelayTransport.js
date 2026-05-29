@@ -15,6 +15,20 @@ export function createLocalHttpRelayTransport() {
       deliveryModes: ["relay-http", "queued-http"],
       networkClass: "host-http-relay",
       experimental: false,
+      configRequirements: [
+        {
+          name: "remoteUrl",
+          required: true,
+          description: "Remote relay base URL for relay delivery, queue operations, and health checks.",
+          example: "http://127.0.0.1:8790"
+        },
+        {
+          name: "targetAgent",
+          required: false,
+          description: "Explicit relay target agent for queued forwarding or pull recovery operations.",
+          example: "receiver"
+        }
+      ],
       supports: {
         healthCheck: true,
         directSend: false,

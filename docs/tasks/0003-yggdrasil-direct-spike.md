@@ -22,6 +22,7 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 - the adapter can be listed by read-only transport diagnostics helpers in test-only registries
 - active runtime delivery hints still reject `yggdrasil-direct` because it is not wired into runtime
 - runtime health diagnostics also reject `yggdrasil-direct` unless it is placed into an explicit diagnostics/test registry
+- metadata now declares experimental IPv6-style `remoteUrl` requirements descriptively only
 - the adapter can be smoke-tested locally without Yggdrasil installed
 
 ## What Is Not Implemented Yet

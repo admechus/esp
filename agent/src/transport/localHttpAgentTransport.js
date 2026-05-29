@@ -15,6 +15,14 @@ export function createLocalHttpAgentTransport() {
       deliveryModes: ["direct-http"],
       networkClass: "host-http",
       experimental: false,
+      configRequirements: [
+        {
+          name: "remoteUrl",
+          required: true,
+          description: "Remote agent base URL for direct bundle delivery and health checks.",
+          example: "http://127.0.0.1:8788"
+        }
+      ],
       supports: {
         healthCheck: true,
         directSend: true,

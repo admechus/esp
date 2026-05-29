@@ -19,7 +19,8 @@ export function summarizeTransportCapabilities(registry) {
     networkClass: entry.metadata?.networkClass ?? "unknown",
     experimental: Boolean(entry.metadata?.experimental),
     capabilities: entry.capabilities,
-    supports: entry.metadata?.supports ?? {}
+    supports: entry.metadata?.supports ?? {},
+    configRequirements: entry.metadata?.configRequirements ?? []
   }));
 }
 

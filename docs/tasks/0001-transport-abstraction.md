@@ -17,6 +17,7 @@ Completed:
 - Stage 3 Step 3 transport diagnostics visibility completed
 - Stage 3 Step 4 manual transport targeting hints completed
 - Stage 3 Step 5 manual transport health diagnostics completed
+- Stage 3 Step 6 descriptive transport configuration requirements completed
 
 Current adapter modules in the codebase:
 
@@ -133,6 +134,7 @@ The next deeper phase should focus on:
 - keeping metadata and diagnostics descriptive only until routing policy is explicitly designed
 - adding explicit operator-facing transport hints only where active runtime transports are already known and safe
 - keeping transport health checks explicit/manual only, without background monitoring or delivery coupling
+- exposing operator-provided configuration requirements descriptively only, without persistence or auto-loading
 
 ## Acceptance shape
 

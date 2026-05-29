@@ -905,15 +905,38 @@ function testRegisteredTransportMetadata() {
   const yggAdapter = registry.require("yggdrasil-direct");
   assert(yggAdapter.metadata.experimental === true, "yggdrasil-direct should be marked experimental.");
   assert(yggAdapter.metadata.supports.ipv6 === true, "yggdrasil-direct should declare IPv6 support.");
+  assert(
+    Array.isArray(yggAdapter.metadata.configRequirements) &&
+      yggAdapter.metadata.configRequirements.some((item) => item.name === "remoteUrl"),
+    "yggdrasil-direct should declare remoteUrl config requirement."
+  );
 
   const fileAdapter = registry.require("file-bundle");
   assert(fileAdapter.metadata.supports.fileExport === true, "file-bundle should declare file export support.");
   assert(fileAdapter.metadata.supports.fileImport === true, "file-bundle should declare file import support.");
   assert(fileAdapter.metadata.supports.offlineCarry === true, "file-bundle should declare offline carry support.");
+  assert(
+    Array.isArray(fileAdapter.metadata.configRequirements) &&
+      fileAdapter.metadata.configRequirements.some((item) => item.name === "filePath"),
+    "file-bundle should declare filePath config requirement."
+  );
 
   const relayAdapter = registry.require("local-http-relay");
   assert(relayAdapter.metadata.supports.relayDelivery === true, "local-http-relay should declare relay delivery.");
   assert(relayAdapter.metadata.supports.pullRecovery === true, "local-http-relay should declare pull recovery.");
+  assert(
+    Array.isArray(relayAdapter.metadata.configRequirements) &&
+      relayAdapter.metadata.configRequirements.some((item) => item.name === "remoteUrl") &&
+      relayAdapter.metadata.configRequirements.some((item) => item.name === "targetAgent"),
+    "local-http-relay should declare remoteUrl and targetAgent config requirements."
+  );
+
+  const agentAdapter = registry.require("local-http-agent");
+  assert(
+    Array.isArray(agentAdapter.metadata.configRequirements) &&
+      agentAdapter.metadata.configRequirements.some((item) => item.name === "remoteUrl"),
+    "local-http-agent should declare remoteUrl config requirement."
+  );
 
   return {
     name: "transport registry metadata passports",
@@ -924,6 +947,50 @@ function testRegisteredTransportMetadata() {
         kind: adapter.kind,
         experimental: adapter.metadata.experimental,
         supports: adapter.metadata.supports
+      }))
+    )
+  };
+}
+
+function testTransportConfigRequirementsMetadata() {
+  const registry = createTransportRegistry({
+    localHttpAgent: createLocalHttpAgentTransport(),
+    localHttpRelay: createLocalHttpRelayTransport(),
+    fileBundle: createFileBundleTransport({
+      readJsonFile,
+      writeJsonFile
+    }),
+    yggdrasilDirect: createYggdrasilDirectTransport()
+  });
+
+  const summaries = summarizeTransportCapabilities(registry);
+  for (const summary of summaries) {
+    assert(
+      Array.isArray(summary.configRequirements),
+      `${summary.id} should expose configRequirements array in diagnostics summary.`
+    );
+    for (const requirement of summary.configRequirements) {
+      assert(typeof requirement.name === "string" && requirement.name, `${summary.id} config requirement name missing.`);
+      assert(typeof requirement.required === "boolean", `${summary.id} config requirement required flag invalid.`);
+      assert(
+        typeof requirement.description === "string" && requirement.description,
+        `${summary.id} config requirement description missing.`
+      );
+      assert(
+        typeof requirement.example === "string" && requirement.example,
+        `${summary.id} config requirement example missing.`
+      );
+    }
+  }
+
+  return {
+    name: "transport config requirements metadata",
+    ok: true,
+    detail: JSON.stringify(
+      summaries.map((summary) => ({
+        id: summary.id,
+        experimental: summary.experimental,
+        requirements: summary.configRequirements.map((item) => item.name)
       }))
     )
   };
@@ -1260,6 +1327,7 @@ async function main() {
   results.push(await testRuntimeUnsupportedTransportFailure());
   results.push(await testRuntimeYggTransportFailure());
   results.push(testRegisteredTransportMetadata());
+  results.push(testTransportConfigRequirementsMetadata());
   results.push(testTransportDiagnosticsStableVisibility());
   results.push(testTransportDiagnosticsYggTestRegistry());
   results.push(...testTransportSendNegativePaths());

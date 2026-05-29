@@ -81,6 +81,13 @@ export function formatTransportTable(transports) {
         .filter(([, value]) => value)
         .map(([key]) => key)
         .join(", ");
+      const configRequirements = Array.isArray(transport.configRequirements)
+        ? transport.configRequirements
+            .map((requirement) =>
+              `${requirement.name}${requirement.required ? "*" : ""}=${requirement.example}`
+            )
+            .join(", ")
+        : "";
 
       return [
         `${transport.label ?? transport.id} (${transport.id})`,
@@ -88,7 +95,8 @@ export function formatTransportTable(transports) {
         `  network: ${transport.networkClass ?? "unknown"}`,
         `  experimental: ${transport.experimental ? "yes" : "no"}`,
         `  capabilities: ${(transport.capabilities ?? []).join(", ") || "none"}`,
-        `  supports: ${supports || "none"}`
+        `  supports: ${supports || "none"}`,
+        `  config: ${configRequirements || "none"}`
       ].join("\n");
     })
     .join("\n\n");
