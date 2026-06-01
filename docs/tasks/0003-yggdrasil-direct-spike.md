@@ -25,10 +25,12 @@ Keep a low-risk experimental scaffold for future direct peer delivery over Yggdr
 - metadata now declares experimental IPv6-style `remoteUrl` requirements descriptively only
 - active runtime profile validation also rejects `yggdrasil-direct` because it is not part of the runtime registry
 - the adapter can be smoke-tested locally without Yggdrasil installed
+- offline readiness helpers can now validate likely Yggdrasil-style IPv6 remote URLs without making network calls
 
 ## What Is Not Implemented Yet
 
 - no real Yggdrasil interface detection
+- no authoritative Yggdrasil address validation
 - no Yggdrasil-specific discovery
 - no routing policy
 - no fallback behavior

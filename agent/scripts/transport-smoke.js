@@ -31,6 +31,11 @@ import {
   summarizeTransportHealth,
   summarizeTransportCapabilities
 } from "../src/transport/transportDiagnostics.js";
+import {
+  describeYggdrasilRemoteUrl,
+  isLikelyYggdrasilIpv6Address,
+  isLikelyYggdrasilRemoteUrl
+} from "../src/transport/yggdrasilAddress.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -604,6 +609,93 @@ async function testYggdrasilDirectSendShape() {
   } finally {
     await server.close();
   }
+}
+
+function testYggdrasilReadinessValidBracketedIpv6Url() {
+  const result = describeYggdrasilRemoteUrl("http://[200:db8::1]:8788");
+  assert(result.validUrl === true, "Bracketed IPv6 URL should parse.");
+  assert(result.isHttpUrl === true, "Bracketed IPv6 URL should be http/https.");
+  assert(result.isIpv6 === true, "Bracketed IPv6 URL should be IPv6.");
+  assert(result.isBracketedIpv6HttpUrl === true, "Bracketed IPv6 URL should preserve bracketed host form.");
+  assert(result.likelyYggdrasilIpv6Address === true, "Example IPv6 should match lightweight Ygg readiness heuristic.");
+  assert(result.likelyYggdrasilRemoteUrl === true, "Bracketed IPv6 HTTP URL should look Ygg-ready.");
+  assert(isLikelyYggdrasilRemoteUrl("http://[200:db8::1]:8788") === true, "Predicate should accept bracketed Ygg-like URL.");
+
+  return {
+    name: "yggdrasil readiness valid bracketed ipv6 url",
+    ok: true,
+    detail: JSON.stringify({
+      hostname: result.hostname,
+      port: result.port,
+      likelyYggdrasilRemoteUrl: result.likelyYggdrasilRemoteUrl
+    })
+  };
+}
+
+function testYggdrasilReadinessInvalidUnbracketedIpv6Url() {
+  const result = describeYggdrasilRemoteUrl("http://200:db8::1:8788");
+  assert(result.validUrl === false, "Unbracketed IPv6 HTTP URL should fail parsing.");
+  assert(result.connectivityChecked === false, "Readiness diagnostics should stay offline-only.");
+  assert(isLikelyYggdrasilRemoteUrl("http://200:db8::1:8788") === false, "Predicate should reject unbracketed IPv6 URL.");
+
+  return {
+    name: "yggdrasil readiness invalid unbracketed ipv6 url",
+    ok: true,
+    detail: result.parseError ?? "parse failed as expected"
+  };
+}
+
+function testYggdrasilReadinessLocalhostUrl() {
+  const result = describeYggdrasilRemoteUrl("http://127.0.0.1:8788");
+  assert(result.validUrl === true, "Localhost HTTP URL should parse.");
+  assert(result.isIpv6 === false, "IPv4 localhost should not be IPv6.");
+  assert(result.likelyYggdrasilRemoteUrl === false, "IPv4 localhost should not look Ygg-ready.");
+  assert(isLikelyYggdrasilIpv6Address("127.0.0.1") === false, "IPv4 localhost should fail Ygg IPv6 heuristic.");
+
+  return {
+    name: "yggdrasil readiness non-ygg localhost url",
+    ok: true,
+    detail: JSON.stringify({
+      hostname: result.hostname,
+      isIpv6: result.isIpv6,
+      likelyYggdrasilRemoteUrl: result.likelyYggdrasilRemoteUrl
+    })
+  };
+}
+
+function testYggdrasilReadinessOfflineOnly() {
+  const result = describeYggdrasilRemoteUrl("http://[200:db8::1]:8788");
+  assert(result.readinessOnly === true, "Ygg readiness should be explicitly diagnostics-only.");
+  assert(result.connectivityChecked === false, "Ygg readiness should not perform connectivity checks.");
+  assert(
+    typeof result.note === "string" && result.note.includes("No Yggdrasil tools or network calls were used."),
+    "Ygg readiness note should explain offline-only behavior."
+  );
+
+  return {
+    name: "yggdrasil readiness diagnostics are offline-only",
+    ok: true,
+    detail: JSON.stringify({
+      readinessOnly: result.readinessOnly,
+      connectivityChecked: result.connectivityChecked
+    })
+  };
+}
+
+async function testYggdrasilInactiveInActiveRuntimeRegistry() {
+  return withTempRuntime(async (runtime) => {
+    const transports = runtime.listTransports();
+    assert(
+      transports.every((entry) => entry.id !== "yggdrasil-direct"),
+      "Active runtime registry should not expose yggdrasil-direct."
+    );
+
+    return {
+      name: "yggdrasil-direct remains inactive in active runtime registry",
+      ok: true,
+      detail: JSON.stringify(transports.map((entry) => entry.id))
+    };
+  });
 }
 
 async function testTransportHealthLocalHttpAgent() {
@@ -1898,6 +1990,11 @@ async function main() {
   results.push(await testLocalHttpRelayPullShape());
   results.push(await testFileBundleRoundtrip());
   results.push(await testYggdrasilDirectSendShape());
+  results.push(testYggdrasilReadinessValidBracketedIpv6Url());
+  results.push(testYggdrasilReadinessInvalidUnbracketedIpv6Url());
+  results.push(testYggdrasilReadinessLocalhostUrl());
+  results.push(testYggdrasilReadinessOfflineOnly());
+  results.push(await testYggdrasilInactiveInActiveRuntimeRegistry());
   results.push(await testRuntimeProfileLoadAndValidate());
   results.push(await testRuntimeProfileMissingProfileNameFailure());
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());

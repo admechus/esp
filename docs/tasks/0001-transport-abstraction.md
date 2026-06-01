@@ -20,6 +20,7 @@ Completed:
 - Stage 3 Step 6 descriptive transport configuration requirements completed
 - Stage 4 Step 1 manual runtime configuration profiles completed
 - Stage 4 Step 2 manual profile-backed transport operations completed
+- Stage 5 Step 1 Yggdrasil readiness audit and offline address validation completed
 
 Current adapter modules in the codebase:
 
@@ -91,6 +92,7 @@ Normalized transport result contracts:
   - not integrated into `agentRuntime.js`
   - no routing, discovery, fallback, or real Yggdrasil-specific networking behavior yet
   - metadata passport is present, but descriptive only
+  - offline readiness helpers now exist for URL/address validation without requiring Yggdrasil installation
 
 ## Suggested implementation order
 
