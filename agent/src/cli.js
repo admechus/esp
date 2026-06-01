@@ -18,6 +18,7 @@ import {
 } from "./runtime/formatters.js";
 import { applyRuntimeProfile } from "./runtime/runtimeProfiles.js";
 import { describeYggdrasilRemoteUrl } from "./transport/yggdrasilAddress.js";
+import { describeYggdrasilEnvironment } from "./transport/yggdrasilEnvironment.js";
 
 function printUsage() {
   console.log(`Usage:
@@ -27,6 +28,7 @@ function printUsage() {
   node src/cli.js runtime-state
   node src/cli.js runtime-paths
   node src/cli.js yggdrasil-readiness [--remote-url http://[200:db8::1]:8788]
+  node src/cli.js yggdrasil-env
   node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js export-bundle [--file <path>] [--transport file-bundle] [--profile <path>]
@@ -312,6 +314,11 @@ async function main() {
     }
     case "yggdrasil-readiness": {
       const result = describeYggdrasilRemoteUrl(args.remoteUrl ?? null);
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+    case "yggdrasil-env": {
+      const result = describeYggdrasilEnvironment();
       console.log(JSON.stringify(result, null, 2));
       break;
     }

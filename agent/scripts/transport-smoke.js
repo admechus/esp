@@ -36,6 +36,11 @@ import {
   isLikelyYggdrasilIpv6Address,
   isLikelyYggdrasilRemoteUrl
 } from "../src/transport/yggdrasilAddress.js";
+import {
+  describeYggdrasilEnvironment,
+  detectYggdrasilCommandAvailability,
+  detectYggdrasilCtlAvailability
+} from "../src/transport/yggdrasilEnvironment.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -696,6 +701,79 @@ async function testYggdrasilInactiveInActiveRuntimeRegistry() {
       detail: JSON.stringify(transports.map((entry) => entry.id))
     };
   });
+}
+
+function createUnavailableLookupExecutor() {
+  return function unavailableLookupExecutor() {
+    return {
+      ok: false,
+      status: 1,
+      stdout: "",
+      stderr: "",
+      error: null,
+      lookupCommand: process.platform === "win32" ? "where.exe" : "which"
+    };
+  };
+}
+
+function testYggdrasilEnvironmentDiagnosticsShape() {
+  const lookupExecutor = createUnavailableLookupExecutor();
+  const result = describeYggdrasilEnvironment(lookupExecutor);
+  assert(typeof result.platform === "string" && result.platform, "Ygg environment should expose platform.");
+  assert(typeof result.arch === "string" && result.arch, "Ygg environment should expose arch.");
+  assert(typeof result.node === "string" && result.node, "Ygg environment should expose Node version.");
+  assert(result.checks.commandLookupAttempted === true, "Ygg environment should report lookup attempt.");
+  assert(result.readinessOnly === true, "Ygg environment should remain readiness-only.");
+
+  return {
+    name: "yggdrasil env diagnostics shape",
+    ok: true,
+    detail: JSON.stringify({
+      platform: result.platform,
+      arch: result.arch,
+      node: result.node,
+      checks: result.checks
+    })
+  };
+}
+
+function testYggdrasilEnvironmentCommandAbsenceNonFatal() {
+  const lookupExecutor = createUnavailableLookupExecutor();
+  const yggdrasil = detectYggdrasilCommandAvailability(lookupExecutor);
+  const yggdrasilctl = detectYggdrasilCtlAvailability(lookupExecutor);
+  assert(yggdrasil.available === false, "Missing yggdrasil command should report unavailable.");
+  assert(yggdrasilctl.available === false, "Missing yggdrasilctl command should report unavailable.");
+  assert(yggdrasil.commandLookupAttempted === true, "Missing command should still report lookup attempt.");
+
+  return {
+    name: "yggdrasil env command absence is non-fatal",
+    ok: true,
+    detail: JSON.stringify({
+      yggdrasilAvailable: yggdrasil.available,
+      yggdrasilctlAvailable: yggdrasilctl.available
+    })
+  };
+}
+
+function testYggdrasilEnvironmentLocalOnly() {
+  const result = describeYggdrasilEnvironment(createUnavailableLookupExecutor());
+  assert(result.readinessOnly === true, "Environment diagnostics should be readiness-only.");
+  assert(result.connectivityChecked === false, "Environment diagnostics should not test connectivity.");
+  assert(result.serviceControlAttempted === false, "Environment diagnostics should not attempt service control.");
+  assert(
+    typeof result.note === "string" && result.note.includes("No Yggdrasil service control"),
+    "Environment diagnostics note should explain local-only behavior."
+  );
+
+  return {
+    name: "yggdrasil env diagnostics are local-only",
+    ok: true,
+    detail: JSON.stringify({
+      readinessOnly: result.readinessOnly,
+      connectivityChecked: result.connectivityChecked,
+      serviceControlAttempted: result.serviceControlAttempted
+    })
+  };
 }
 
 async function testTransportHealthLocalHttpAgent() {
@@ -1995,6 +2073,9 @@ async function main() {
   results.push(testYggdrasilReadinessLocalhostUrl());
   results.push(testYggdrasilReadinessOfflineOnly());
   results.push(await testYggdrasilInactiveInActiveRuntimeRegistry());
+  results.push(testYggdrasilEnvironmentDiagnosticsShape());
+  results.push(testYggdrasilEnvironmentCommandAbsenceNonFatal());
+  results.push(testYggdrasilEnvironmentLocalOnly());
   results.push(await testRuntimeProfileLoadAndValidate());
   results.push(await testRuntimeProfileMissingProfileNameFailure());
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());

@@ -28,3 +28,4 @@
 - [0005-runtime-state-recovery-audit](./tasks/0005-runtime-state-recovery-audit.md)
 - [0006-runtime-state-path-environment-audit](./tasks/0006-runtime-state-path-environment-audit.md)
 - [0007-yggdrasil-readiness-audit](./tasks/0007-yggdrasil-readiness-audit.md)
+- [0008-yggdrasil-environment-discovery-audit](./tasks/0008-yggdrasil-environment-discovery-audit.md)

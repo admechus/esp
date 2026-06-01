@@ -27,6 +27,7 @@ Prepare the project for future real Yggdrasil transport integration without enab
   - likely Yggdrasil IPv6 addresses
   - likely bracketed IPv6 HTTP remote URLs
   - diagnostics-only remote URL description
+- offline host environment discovery for likely local command availability
 - offline smoke validation for likely-good and likely-bad URL forms
 - explicit confirmation that the active runtime registry still excludes `yggdrasil-direct`
 
@@ -101,6 +102,7 @@ This audit assumes:
 
 - real active runtime delivery wiring
 - authoritative Yggdrasil host/interface validation
+- authoritative service/process state inspection
 - operational assumptions for local Yggdrasil daemon management
 - explicit port and service expectations
 - real health behavior against actual Yggdrasil-connected peers
