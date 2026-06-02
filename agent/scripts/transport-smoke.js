@@ -41,6 +41,15 @@ import {
   detectYggdrasilCommandAvailability,
   detectYggdrasilCtlAvailability
 } from "../src/transport/yggdrasilEnvironment.js";
+import {
+  describeYggdrasilConnectivity,
+  parseYggdrasilAddressCandidates,
+  parseYggdrasilctlGetSelfOutput
+} from "../src/transport/yggdrasilConnectivity.js";
+import {
+  describeYggdrasilHealthProbe,
+  probeYggdrasilHealth
+} from "../src/transport/yggdrasilHealthProbe.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -101,6 +110,41 @@ async function withJsonServer(handler) {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  return {
+    baseUrl,
+    async close() {
+      await new Promise((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve()))
+      );
+    }
+  };
+}
+
+async function withIpv6JsonServer(handler) {
+  const server = createServer(async (request, response) => {
+    try {
+      const payload = await handler(request);
+      response.writeHead(payload.statusCode ?? 200, {
+        "Content-Type": "application/json; charset=utf-8"
+      });
+      response.end(JSON.stringify(payload.body ?? {}));
+    } catch (error) {
+      response.writeHead(500, {
+        "Content-Type": "application/json; charset=utf-8"
+      });
+      response.end(
+        JSON.stringify({
+          ok: false,
+          error: error.message
+        })
+      );
+    }
+  });
+
+  await new Promise((resolve) => server.listen(0, "::1", resolve));
+  const address = server.address();
+  const baseUrl = `http://[::1]:${address.port}`;
 
   return {
     baseUrl,
@@ -772,6 +816,289 @@ function testYggdrasilEnvironmentLocalOnly() {
       readinessOnly: result.readinessOnly,
       connectivityChecked: result.connectivityChecked,
       serviceControlAttempted: result.serviceControlAttempted
+    })
+  };
+}
+
+function testYggdrasilConnectivityCommandAbsenceNonFatal() {
+  const lookupExecutor = createUnavailableLookupExecutor();
+  const result = describeYggdrasilConnectivity(
+    {
+      remoteUrl: "http://[200:db8::1]:8788"
+    },
+    {
+      lookupExecutor
+    }
+  );
+
+  assert(result.diagnosticsOnly === true, "Connectivity diagnostics should remain diagnostics-only.");
+  assert(result.local.yggdrasilctlAvailable === false, "Missing yggdrasilctl should report unavailable.");
+  assert(result.local.selfInspectionAttempted === false, "Self inspection should not run when yggdrasilctl is unavailable.");
+
+  return {
+    name: "yggdrasil connectivity command absence is non-fatal",
+    ok: true,
+    detail: JSON.stringify({
+      yggdrasilctlAvailable: result.local.yggdrasilctlAvailable,
+      selfInspectionAttempted: result.local.selfInspectionAttempted
+    })
+  };
+}
+
+function testYggdrasilConnectivityRemoteUrlIncluded() {
+  const result = describeYggdrasilConnectivity(
+    {
+      remoteUrl: "http://[200:db8::1]:8788"
+    },
+    {
+      lookupExecutor: createUnavailableLookupExecutor()
+    }
+  );
+
+  assert(result.remoteUrlReadiness.validUrl === true, "Connectivity diagnostics should include remote URL readiness.");
+  assert(
+    result.remoteUrlReadiness.likelyYggdrasilRemoteUrl === true,
+    "Connectivity diagnostics should preserve Ygg-ready remoteUrl result."
+  );
+
+  return {
+    name: "yggdrasil connectivity includes remoteUrl readiness",
+    ok: true,
+    detail: JSON.stringify({
+      remoteUrl: result.remoteUrl,
+      likelyYggdrasilRemoteUrl: result.remoteUrlReadiness.likelyYggdrasilRemoteUrl
+    })
+  };
+}
+
+function testYggdrasilConnectivityParserHandlesSampleOutput() {
+  const parsedJson = parseYggdrasilctlGetSelfOutput(
+    JSON.stringify({
+      self: {
+        address: "200:1111:2222:3333:4444:5555:6666:7777"
+      },
+      other: ["300:aaaa::1"]
+    })
+  );
+  const parsedText = parseYggdrasilAddressCandidates(
+    "Local addresses: [200:1111:2222:3333:4444:5555:6666:7777] and 300:aaaa::1"
+  );
+
+  assert(parsedJson.format === "json", "JSON parser should detect JSON format.");
+  assert(parsedJson.addressCandidates.length >= 2, "JSON parser should extract IPv6 candidates.");
+  assert(parsedText.length >= 2, "Text parser should extract IPv6 candidates.");
+  assert(
+    parsedJson.addressCandidates.some((candidate) => candidate.likelyYggdrasil === true),
+    "Parser should classify likely Yggdrasil-like addresses."
+  );
+
+  return {
+    name: "yggdrasil connectivity parser handles sample output",
+    ok: true,
+    detail: JSON.stringify({
+      jsonCandidates: parsedJson.addressCandidates,
+      textCandidates: parsedText
+    })
+  };
+}
+
+function testYggdrasilConnectivityNoMutationOrDelivery() {
+  const result = describeYggdrasilConnectivity(
+    {
+      remoteUrl: "http://[200:db8::1]:8788"
+    },
+    {
+      lookupExecutor: createUnavailableLookupExecutor()
+    }
+  );
+
+  assert(result.messageDeliveryEnabled === false, "Connectivity diagnostics should not enable message delivery.");
+  assert(result.serviceControlAttempted === false, "Connectivity diagnostics should not attempt service control.");
+  assert(result.configMutationAttempted === false, "Connectivity diagnostics should not mutate config.");
+  assert(result.connectivity.networkProbeAttempted === false, "Connectivity diagnostics should not probe network.");
+  assert(result.connectivity.httpHealthProbeAttempted === false, "Connectivity diagnostics should not probe HTTP health.");
+  assert(result.connectivity.messageDeliveryAttempted === false, "Connectivity diagnostics should not attempt delivery.");
+
+  return {
+    name: "yggdrasil connectivity diagnostics avoid mutation and delivery",
+    ok: true,
+    detail: JSON.stringify({
+      messageDeliveryEnabled: result.messageDeliveryEnabled,
+      serviceControlAttempted: result.serviceControlAttempted,
+      configMutationAttempted: result.configMutationAttempted,
+      connectivity: result.connectivity
+    })
+  };
+}
+
+function testYggdrasilHealthEndpointBuild() {
+  const result = describeYggdrasilHealthProbe({
+    remoteUrl: "http://[200:db8::1]:8788"
+  });
+  assert(result.error === null, "Valid bracketed IPv6 URL should be accepted for health probe.");
+  assert(result.probeAttempted === false, "Describe helper should not perform probe.");
+  assert(
+    result.healthEndpoint === "http://[200:db8::1]:8788/health",
+    `Expected /health endpoint, got ${result.healthEndpoint}`
+  );
+
+  return {
+    name: "yggdrasil health valid remoteUrl builds endpoint",
+    ok: true,
+    detail: JSON.stringify({
+      remoteUrl: result.remoteUrl,
+      healthEndpoint: result.healthEndpoint
+    })
+  };
+}
+
+async function testYggdrasilHealthInvalidUnbracketedIpv6DoesNotProbe() {
+  const result = await probeYggdrasilHealth({
+    remoteUrl: "http://200:db8::1:8788"
+  });
+  assert(result.probeAttempted === false, "Invalid unbracketed IPv6 URL should not be probed.");
+  assert(
+    result.error === "Yggdrasil health probe requires a bracketed IPv6 HTTP/HTTPS remoteUrl.",
+    `Unexpected invalid URL error: ${result.error}`
+  );
+
+  return {
+    name: "yggdrasil health invalid unbracketed ipv6 does not probe",
+    ok: true,
+    detail: result.error
+  };
+}
+
+async function testYggdrasilHealthMockSuccessResponse() {
+  const server = await withIpv6JsonServer(async (request) => {
+    assert(request.method === "GET", "Yggdrasil health probe should use GET.");
+    assert(request.url === "/health", "Yggdrasil health probe should only hit /health.");
+    return {
+      statusCode: 200,
+      body: {
+        ok: true,
+        service: "esp-messenger-agent",
+        agent: {
+          name: "receiver-ygg-health"
+        }
+      }
+    };
+  });
+
+  try {
+    const result = await probeYggdrasilHealth({
+      remoteUrl: server.baseUrl,
+      timeoutMs: 1000
+    });
+    assert(result.probeAttempted === true, "Health probe should be attempted for valid IPv6 URL.");
+    assert(result.ok === true, "Mock /health success should report ok.");
+    assert(result.httpStatus === 200, "Mock /health success should preserve status code.");
+    assert(result.messageDeliveryAttempted === false, "Health probe should not attempt message delivery.");
+
+    return {
+      name: "yggdrasil health mock http success",
+      ok: true,
+      detail: JSON.stringify({
+        healthEndpoint: result.healthEndpoint,
+        httpStatus: result.httpStatus,
+        payload: result.payload
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+async function testYggdrasilHealthMockFailureResponse() {
+  const server = await withIpv6JsonServer(async (request) => {
+    assert(request.method === "GET", "Yggdrasil health failure probe should use GET.");
+    assert(request.url === "/health", "Yggdrasil health failure probe should only hit /health.");
+    return {
+      statusCode: 503,
+      body: {
+        ok: false,
+        error: "agent_temporarily_unavailable"
+      }
+    };
+  });
+
+  try {
+    const result = await probeYggdrasilHealth({
+      remoteUrl: server.baseUrl,
+      timeoutMs: 1000
+    });
+    assert(result.probeAttempted === true, "Failure probe should still be attempted.");
+    assert(result.ok === false, "Failure response should report ok=false.");
+    assert(result.httpStatus === 503, "Failure response should preserve status.");
+    assert(result.error === "agent_temporarily_unavailable", `Unexpected failure error: ${result.error}`);
+
+    return {
+      name: "yggdrasil health mock http failure",
+      ok: true,
+      detail: JSON.stringify({
+        httpStatus: result.httpStatus,
+        error: result.error
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+async function testYggdrasilHealthTimeoutOrUnreachableStructuredFailure() {
+  const server = await withIpv6JsonServer(
+    async () =>
+      new Promise((resolve) => {
+        setTimeout(
+          () =>
+            resolve({
+              statusCode: 200,
+              body: {
+                ok: true
+              }
+            }),
+          200
+        );
+      })
+  );
+
+  try {
+    const result = await probeYggdrasilHealth({
+      remoteUrl: server.baseUrl,
+      timeoutMs: 25
+    });
+    assert(result.probeAttempted === true, "Timeout path should still mark probeAttempted.");
+    assert(result.ok === false, "Timeout path should report ok=false.");
+    assert(result.timedOut === true, "Timeout path should report timedOut=true.");
+
+    return {
+      name: "yggdrasil health timeout returns structured failure",
+      ok: true,
+      detail: JSON.stringify({
+        timedOut: result.timedOut,
+        error: result.error
+      })
+    };
+  } finally {
+    await server.close();
+  }
+}
+
+function testYggdrasilHealthNoMessageDeliveryAttempted() {
+  const result = describeYggdrasilHealthProbe({
+    remoteUrl: "http://[200:db8::1]:8788"
+  });
+  assert(result.diagnosticsOnly === true, "Yggdrasil health should remain diagnostics-only.");
+  assert(result.transportDeliveryEnabled === false, "Yggdrasil health should not enable transport delivery.");
+  assert(result.messageDeliveryAttempted === false, "Yggdrasil health should not attempt message delivery.");
+
+  return {
+    name: "yggdrasil health diagnostics confirm no message delivery",
+    ok: true,
+    detail: JSON.stringify({
+      diagnosticsOnly: result.diagnosticsOnly,
+      transportDeliveryEnabled: result.transportDeliveryEnabled,
+      messageDeliveryAttempted: result.messageDeliveryAttempted
     })
   };
 }
@@ -2076,6 +2403,16 @@ async function main() {
   results.push(testYggdrasilEnvironmentDiagnosticsShape());
   results.push(testYggdrasilEnvironmentCommandAbsenceNonFatal());
   results.push(testYggdrasilEnvironmentLocalOnly());
+  results.push(testYggdrasilConnectivityCommandAbsenceNonFatal());
+  results.push(testYggdrasilConnectivityRemoteUrlIncluded());
+  results.push(testYggdrasilConnectivityParserHandlesSampleOutput());
+  results.push(testYggdrasilConnectivityNoMutationOrDelivery());
+  results.push(testYggdrasilHealthEndpointBuild());
+  results.push(await testYggdrasilHealthInvalidUnbracketedIpv6DoesNotProbe());
+  results.push(await testYggdrasilHealthMockSuccessResponse());
+  results.push(await testYggdrasilHealthMockFailureResponse());
+  results.push(await testYggdrasilHealthTimeoutOrUnreachableStructuredFailure());
+  results.push(testYggdrasilHealthNoMessageDeliveryAttempted());
   results.push(await testRuntimeProfileLoadAndValidate());
   results.push(await testRuntimeProfileMissingProfileNameFailure());
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());

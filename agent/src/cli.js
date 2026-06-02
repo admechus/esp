@@ -18,7 +18,9 @@ import {
 } from "./runtime/formatters.js";
 import { applyRuntimeProfile } from "./runtime/runtimeProfiles.js";
 import { describeYggdrasilRemoteUrl } from "./transport/yggdrasilAddress.js";
+import { describeYggdrasilConnectivity } from "./transport/yggdrasilConnectivity.js";
 import { describeYggdrasilEnvironment } from "./transport/yggdrasilEnvironment.js";
+import { probeYggdrasilHealth } from "./transport/yggdrasilHealthProbe.js";
 
 function printUsage() {
   console.log(`Usage:
@@ -29,6 +31,8 @@ function printUsage() {
   node src/cli.js runtime-paths
   node src/cli.js yggdrasil-readiness [--remote-url http://[200:db8::1]:8788]
   node src/cli.js yggdrasil-env
+  node src/cli.js yggdrasil-connectivity [--remote-url http://[200:db8::1]:8788]
+  node src/cli.js yggdrasil-health --remote-url http://[200:db8::1]:8788 [--timeout-ms 3000]
   node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js export-bundle [--file <path>] [--transport file-bundle] [--profile <path>]
@@ -92,6 +96,7 @@ function parseArgs(argv) {
     relayStateDir: null,
     routes: [],
     syncIntervalMs: 15000,
+    timeoutMs: 3000,
     transportId: null,
     listenPort: 8787,
     host: "127.0.0.1"
@@ -240,6 +245,11 @@ function parseArgs(argv) {
       index += 1;
       continue;
     }
+    if (token === "--timeout-ms") {
+      options.timeoutMs = Number.parseInt(rest[index + 1] ?? "3000", 10);
+      index += 1;
+      continue;
+    }
     positionals.push(token);
   }
 
@@ -319,6 +329,24 @@ async function main() {
     }
     case "yggdrasil-env": {
       const result = describeYggdrasilEnvironment();
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+    case "yggdrasil-connectivity": {
+      const result = describeYggdrasilConnectivity({
+        remoteUrl: args.remoteUrl ?? null
+      });
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+    case "yggdrasil-health": {
+      if (!args.remoteUrl) {
+        throw new Error("Missing --remote-url for yggdrasil-health.");
+      }
+      const result = await probeYggdrasilHealth({
+        remoteUrl: args.remoteUrl,
+        timeoutMs: args.timeoutMs
+      });
       console.log(JSON.stringify(result, null, 2));
       break;
     }

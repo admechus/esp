@@ -94,3 +94,5 @@ This step does not:
 - excluded from active runtime delivery
 
 Environment discovery improves observability, not activation.
+
+The next diagnostic layer may optionally inspect local self/address state when `yggdrasilctl` is present, but it should remain read-only and delivery-free.

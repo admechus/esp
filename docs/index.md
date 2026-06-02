@@ -29,3 +29,5 @@
 - [0006-runtime-state-path-environment-audit](./tasks/0006-runtime-state-path-environment-audit.md)
 - [0007-yggdrasil-readiness-audit](./tasks/0007-yggdrasil-readiness-audit.md)
 - [0008-yggdrasil-environment-discovery-audit](./tasks/0008-yggdrasil-environment-discovery-audit.md)
+- [0009-yggdrasil-connectivity-validation-audit](./tasks/0009-yggdrasil-connectivity-validation-audit.md)
+- [0010-yggdrasil-health-probe-audit](./tasks/0010-yggdrasil-health-probe-audit.md)
