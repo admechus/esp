@@ -113,3 +113,5 @@ This task still does not activate transport delivery.
 - not active runtime delivery
 
 Controlled `/health` probing improves observability without activating transport delivery.
+
+The next diagnostics layer may collect structured local node information from `yggdrasilctl`, but it should remain local, read-only, and delivery-free.

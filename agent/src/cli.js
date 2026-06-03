@@ -21,6 +21,7 @@ import { describeYggdrasilRemoteUrl } from "./transport/yggdrasilAddress.js";
 import { describeYggdrasilConnectivity } from "./transport/yggdrasilConnectivity.js";
 import { describeYggdrasilEnvironment } from "./transport/yggdrasilEnvironment.js";
 import { probeYggdrasilHealth } from "./transport/yggdrasilHealthProbe.js";
+import { describeYggdrasilLocalNode } from "./transport/yggdrasilNodeIntrospection.js";
 
 function printUsage() {
   console.log(`Usage:
@@ -33,6 +34,7 @@ function printUsage() {
   node src/cli.js yggdrasil-env
   node src/cli.js yggdrasil-connectivity [--remote-url http://[200:db8::1]:8788]
   node src/cli.js yggdrasil-health --remote-url http://[200:db8::1]:8788 [--timeout-ms 3000]
+  node src/cli.js yggdrasil-node
   node src/cli.js validate-profile <path>
   node src/cli.js check-transport --transport local-http-agent [--remote-url http://127.0.0.1:8788]
   node src/cli.js export-bundle [--file <path>] [--transport file-bundle] [--profile <path>]
@@ -347,6 +349,11 @@ async function main() {
         remoteUrl: args.remoteUrl,
         timeoutMs: args.timeoutMs
       });
+      console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+    case "yggdrasil-node": {
+      const result = describeYggdrasilLocalNode();
       console.log(JSON.stringify(result, null, 2));
       break;
     }

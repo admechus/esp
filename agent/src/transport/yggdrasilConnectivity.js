@@ -78,8 +78,8 @@ export function parseYggdrasilctlGetSelfOutput(output) {
   }
 }
 
-function defaultYggdrasilCtlExecutor(args = ["getSelf"]) {
-  const result = spawnSync("yggdrasilctl", args, {
+function defaultYggdrasilCtlExecutor(commandPath, args = ["getSelf"]) {
+  const result = spawnSync(commandPath, args, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
     timeout: 1500
@@ -123,7 +123,8 @@ export function describeYggdrasilConnectivity(
     local.inspectionCommand = "yggdrasilctl getSelf";
 
     try {
-      const inspection = ctlExecutor(["getSelf"]);
+      const commandPath = environment.commands?.yggdrasilctl?.locations?.[0] ?? "yggdrasilctl";
+      const inspection = ctlExecutor(commandPath, ["getSelf"]);
       const parsed = parseYggdrasilctlGetSelfOutput(inspection.stdout);
       local.selfInspectionSucceeded = Boolean(inspection.ok);
       local.inspectionTimedOut = Boolean(inspection.timedOut);

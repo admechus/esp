@@ -1,4 +1,17 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
+
+function getKnownCommandLocations(commandName) {
+  if (process.platform !== "win32") {
+    return [];
+  }
+
+  const fileName = `${commandName}.exe`;
+  return [
+    `C:\\Program Files\\Yggdrasil\\${fileName}`,
+    `C:\\Program Files (x86)\\Yggdrasil\\${fileName}`
+  ];
+}
 
 function getLookupCommand() {
   return process.platform === "win32"
@@ -35,20 +48,53 @@ function normalizeCommandDetection(commandName, result) {
     lookupCommand: result.lookupCommand ?? getLookupCommand().command,
     available: Boolean(result.ok),
     locations,
-    error: result.error ? result.error.message : null
+    error: result.error ? result.error.message : null,
+    skipKnownLocations: Boolean(result.skipKnownLocations)
   };
+}
+
+function resolveKnownCommandLocation(commandName) {
+  for (const location of getKnownCommandLocations(commandName)) {
+    if (existsSync(location)) {
+      return location;
+    }
+  }
+
+  return null;
 }
 
 export function detectCommandAvailability(commandName, lookupExecutor = defaultLookupExecutor) {
   try {
-    return normalizeCommandDetection(commandName, lookupExecutor(commandName));
+    const normalized = normalizeCommandDetection(commandName, lookupExecutor(commandName));
+    if (normalized.available) {
+      const { skipKnownLocations, ...visibleResult } = normalized;
+      return visibleResult;
+    }
+    if (normalized.skipKnownLocations) {
+      const { skipKnownLocations, ...visibleResult } = normalized;
+      return visibleResult;
+    }
+
+    const fallbackLocation = resolveKnownCommandLocation(commandName);
+    if (!fallbackLocation) {
+      const { skipKnownLocations, ...visibleResult } = normalized;
+      return visibleResult;
+    }
+
+    const { skipKnownLocations, ...visibleResult } = normalized;
+    return {
+      ...visibleResult,
+      available: true,
+      locations: [fallbackLocation]
+    };
   } catch (error) {
+    const fallbackLocation = resolveKnownCommandLocation(commandName);
     return {
       command: commandName,
       commandLookupAttempted: true,
       lookupCommand: getLookupCommand().command,
-      available: false,
-      locations: [],
+      available: Boolean(fallbackLocation),
+      locations: fallbackLocation ? [fallbackLocation] : [],
       error: error.message
     };
   }

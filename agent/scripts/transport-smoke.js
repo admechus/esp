@@ -50,6 +50,14 @@ import {
   describeYggdrasilHealthProbe,
   probeYggdrasilHealth
 } from "../src/transport/yggdrasilHealthProbe.js";
+import {
+  describeYggdrasilLocalNode,
+  parseYggdrasilCommandListOutput,
+  parseYggdrasilGetPeersOutput,
+  parseYggdrasilGetSelfOutput,
+  parseYggdrasilGetSessionsOutput,
+  parseYggdrasilGetTunOutput
+} from "../src/transport/yggdrasilNodeIntrospection.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -755,7 +763,8 @@ function createUnavailableLookupExecutor() {
       stdout: "",
       stderr: "",
       error: null,
-      lookupCommand: process.platform === "win32" ? "where.exe" : "which"
+      lookupCommand: process.platform === "win32" ? "where.exe" : "which",
+      skipKnownLocations: true
     };
   };
 }
@@ -1099,6 +1108,158 @@ function testYggdrasilHealthNoMessageDeliveryAttempted() {
       diagnosticsOnly: result.diagnosticsOnly,
       transportDeliveryEnabled: result.transportDeliveryEnabled,
       messageDeliveryAttempted: result.messageDeliveryAttempted
+    })
+  };
+}
+
+function testYggdrasilNodeParseGetSelfOutput() {
+  const parsed = parseYggdrasilGetSelfOutput(`┌─────────────────────┬──────────────────────────────────────────────────────────────────┐
+│ Build name:         │ yggdrasil                                                        │
+│ Build version:      │ 0.5.13                                                           │
+│ IPv6 address:       │ 201:7529:92cb:9f24:5f19:bdaa:4cc6:5c23                           │
+│ IPv6 subnet:        │ 301:7529:92cb:9f24::/64                                          │
+│ Routing table size: │ 1                                                                │
+│ Public key:         │ 62b59b4d1836e83990956cce68f714a3589b62fe27392ac6f48f8e06da878415 │
+└─────────────────────┴──────────────────────────────────────────────────────────────────┘`);
+
+  assert(parsed.available === true, "getself parser should mark structured output available.");
+  assert(parsed.buildName === "yggdrasil", "getself parser should extract build name.");
+  assert(parsed.buildVersion === "0.5.13", "getself parser should extract build version.");
+  assert(parsed.routingTableSize === 1, "getself parser should extract routing table size.");
+
+  return {
+    name: "yggdrasil node parse getself output",
+    ok: true,
+    detail: JSON.stringify({
+      buildName: parsed.buildName,
+      buildVersion: parsed.buildVersion,
+      ipv6Address: parsed.ipv6Address,
+      publicKey: parsed.publicKey
+    })
+  };
+}
+
+function testYggdrasilNodeParseEmptyPeersOutput() {
+  const parsed = parseYggdrasilGetPeersOutput(`┌─────┬───────┬─────┬────────────┬────────┬─────┬────┬────┬──────┬────┬────┬──────┬────────────┐
+│ URI │ State │ Dir │ IP Address │ Uptime │ RTT │ RX │ TX │ Down │ Up │ Pr │ Cost │ Last Error │
+└─────┴───────┴─────┴────────────┴────────┴─────┴────┴────┴──────┴────┴────┴──────┴────────────┘`);
+
+  assert(parsed.available === true, "empty peers table should still be available.");
+  assert(parsed.count === 0, "empty peers table should report zero peers.");
+
+  return {
+    name: "yggdrasil node parse empty peers output",
+    ok: true,
+    detail: JSON.stringify(parsed)
+  };
+}
+
+function testYggdrasilNodeParseEmptySessionsOutput() {
+  const parsed = parseYggdrasilGetSessionsOutput(`┌────────────┬────────────┬────────┬────┬────┐
+│ Public Key │ IP Address │ Uptime │ RX │ TX │
+└────────────┴────────────┴────────┴────┴────┘`);
+
+  assert(parsed.available === true, "empty sessions table should still be available.");
+  assert(parsed.count === 0, "empty sessions table should report zero sessions.");
+
+  return {
+    name: "yggdrasil node parse empty sessions output",
+    ok: true,
+    detail: JSON.stringify(parsed)
+  };
+}
+
+function testYggdrasilNodeParseTunOutput() {
+  const parsed = parseYggdrasilGetTunOutput(`┌─────────────────┬───────────┐
+│ TUN enabled:    │ true      │
+│ Interface name: │ Yggdrasil │
+│ Interface MTU:  │ 65535     │
+└─────────────────┴───────────┘`);
+
+  assert(parsed.available === true, "gettun parser should mark output available.");
+  assert(parsed.interface === "Yggdrasil", "gettun parser should extract interface name.");
+  assert(parsed.mtu === 65535, "gettun parser should extract MTU.");
+
+  return {
+    name: "yggdrasil node parse tun output",
+    ok: true,
+    detail: JSON.stringify({
+      interface: parsed.interface,
+      mtu: parsed.mtu,
+      tunEnabled: parsed.tunEnabled
+    })
+  };
+}
+
+function testYggdrasilNodeParseCommandListOutput() {
+  const parsed = parseYggdrasilCommandListOutput(`┌────────────────────────┬────────────────────────┬───────────────────────────────────────────────────────┐
+│        Command         │       Arguments        │                      Description                      │
+├────────────────────────┼────────────────────────┼───────────────────────────────────────────────────────┤
+│ addpeer                │ uri=..., interface=... │ Add a peer to the peer list                           │
+│ getpeers               │ sort=...               │ Show directly connected peers                         │
+│ getself                │                        │ Show details about this node                          │
+│ getsessions            │                        │ Show established traffic sessions with remote nodes   │
+│ gettun                 │                        │ Show information about the node's TUN interface       │
+│ list                   │                        │ List available commands                               │
+└────────────────────────┴────────────────────────┴───────────────────────────────────────────────────────┘`);
+
+  assert(parsed.includes("getself"), "command list parser should include getself.");
+  assert(parsed.includes("getpeers"), "command list parser should include getpeers.");
+  assert(parsed.includes("getsessions"), "command list parser should include getsessions.");
+  assert(parsed.includes("gettun"), "command list parser should include gettun.");
+
+  return {
+    name: "yggdrasil node parse command list output",
+    ok: true,
+    detail: JSON.stringify(parsed)
+  };
+}
+
+function testYggdrasilNodeMissingYggdrasilctl() {
+  const parsed = describeYggdrasilLocalNode(
+    {},
+    {
+      lookupExecutor: createUnavailableLookupExecutor()
+    }
+  );
+
+  assert(parsed.yggdrasilctlAvailable === false, "missing yggdrasilctl should be reported unavailable.");
+  assert(parsed.self.available === false, "self should be unavailable when yggdrasilctl is missing.");
+  assert(parsed.supportedCommands.length === 0, "missing yggdrasilctl should return empty supported command list.");
+
+  return {
+    name: "yggdrasil node missing yggdrasilctl",
+    ok: true,
+    detail: JSON.stringify({
+      yggdrasilctlAvailable: parsed.yggdrasilctlAvailable,
+      selfAvailable: parsed.self.available
+    })
+  };
+}
+
+function testYggdrasilNodeDiagnosticsOnlyGuarantees() {
+  const parsed = describeYggdrasilLocalNode(
+    {},
+    {
+      lookupExecutor: createUnavailableLookupExecutor()
+    }
+  );
+
+  assert(parsed.diagnosticsOnly === true, "node introspection should remain diagnostics-only.");
+  assert(parsed.networkProbeAttempted === false, "node introspection should not attempt network probes.");
+  assert(parsed.messageDeliveryEnabled === false, "node introspection should not enable message delivery.");
+  assert(parsed.serviceControlAttempted === false, "node introspection should not attempt service control.");
+  assert(parsed.configMutationAttempted === false, "node introspection should not mutate config.");
+
+  return {
+    name: "yggdrasil node diagnostics-only guarantees",
+    ok: true,
+    detail: JSON.stringify({
+      diagnosticsOnly: parsed.diagnosticsOnly,
+      networkProbeAttempted: parsed.networkProbeAttempted,
+      messageDeliveryEnabled: parsed.messageDeliveryEnabled,
+      serviceControlAttempted: parsed.serviceControlAttempted,
+      configMutationAttempted: parsed.configMutationAttempted
     })
   };
 }
@@ -2413,6 +2574,13 @@ async function main() {
   results.push(await testYggdrasilHealthMockFailureResponse());
   results.push(await testYggdrasilHealthTimeoutOrUnreachableStructuredFailure());
   results.push(testYggdrasilHealthNoMessageDeliveryAttempted());
+  results.push(testYggdrasilNodeParseGetSelfOutput());
+  results.push(testYggdrasilNodeParseEmptyPeersOutput());
+  results.push(testYggdrasilNodeParseEmptySessionsOutput());
+  results.push(testYggdrasilNodeParseTunOutput());
+  results.push(testYggdrasilNodeParseCommandListOutput());
+  results.push(testYggdrasilNodeMissingYggdrasilctl());
+  results.push(testYggdrasilNodeDiagnosticsOnlyGuarantees());
   results.push(await testRuntimeProfileLoadAndValidate());
   results.push(await testRuntimeProfileMissingProfileNameFailure());
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());
