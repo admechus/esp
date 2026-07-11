@@ -58,6 +58,13 @@ import {
   parseYggdrasilGetSessionsOutput,
   parseYggdrasilGetTunOutput
 } from "../src/transport/yggdrasilNodeIntrospection.js";
+import {
+  describeYggdrasilDoctor,
+  detectUtf8Bom,
+  parseYggdrasilConfigDocument,
+  parseYggdrasilGetPathsOutput,
+  summarizeNodeFirewallRules
+} from "../src/transport/yggdrasilDoctor.js";
 import { createFileBundleTransport } from "../src/transport/fileBundleTransport.js";
 import { createLocalHttpAgentTransport } from "../src/transport/localHttpAgentTransport.js";
 import { createLocalHttpRelayTransport } from "../src/transport/localHttpRelayTransport.js";
@@ -1113,14 +1120,14 @@ function testYggdrasilHealthNoMessageDeliveryAttempted() {
 }
 
 function testYggdrasilNodeParseGetSelfOutput() {
-  const parsed = parseYggdrasilGetSelfOutput(`┌─────────────────────┬──────────────────────────────────────────────────────────────────┐
-│ Build name:         │ yggdrasil                                                        │
-│ Build version:      │ 0.5.13                                                           │
-│ IPv6 address:       │ 201:7529:92cb:9f24:5f19:bdaa:4cc6:5c23                           │
-│ IPv6 subnet:        │ 301:7529:92cb:9f24::/64                                          │
-│ Routing table size: │ 1                                                                │
-│ Public key:         │ 62b59b4d1836e83990956cce68f714a3589b62fe27392ac6f48f8e06da878415 │
-└─────────────────────┴──────────────────────────────────────────────────────────────────┘`);
+  const parsed = parseYggdrasilGetSelfOutput(`в”Њв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ђ
+в”‚ Build name:         в”‚ yggdrasil                                                        в”‚
+в”‚ Build version:      в”‚ 0.5.13                                                           в”‚
+в”‚ IPv6 address:       в”‚ 201:7529:92cb:9f24:5f19:bdaa:4cc6:5c23                           в”‚
+в”‚ IPv6 subnet:        в”‚ 301:7529:92cb:9f24::/64                                          в”‚
+в”‚ Routing table size: в”‚ 1                                                                в”‚
+в”‚ Public key:         в”‚ 62b59b4d1836e83990956cce68f714a3589b62fe27392ac6f48f8e06da878415 в”‚
+в””в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”`);
 
   assert(parsed.available === true, "getself parser should mark structured output available.");
   assert(parsed.buildName === "yggdrasil", "getself parser should extract build name.");
@@ -1140,9 +1147,9 @@ function testYggdrasilNodeParseGetSelfOutput() {
 }
 
 function testYggdrasilNodeParseEmptyPeersOutput() {
-  const parsed = parseYggdrasilGetPeersOutput(`┌─────┬───────┬─────┬────────────┬────────┬─────┬────┬────┬──────┬────┬────┬──────┬────────────┐
-│ URI │ State │ Dir │ IP Address │ Uptime │ RTT │ RX │ TX │ Down │ Up │ Pr │ Cost │ Last Error │
-└─────┴───────┴─────┴────────────┴────────┴─────┴────┴────┴──────┴────┴────┴──────┴────────────┘`);
+  const parsed = parseYggdrasilGetPeersOutput(`в”Њв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ђ
+в”‚ URI в”‚ State в”‚ Dir в”‚ IP Address в”‚ Uptime в”‚ RTT в”‚ RX в”‚ TX в”‚ Down в”‚ Up в”‚ Pr в”‚ Cost в”‚ Last Error в”‚
+в””в”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”`);
 
   assert(parsed.available === true, "empty peers table should still be available.");
   assert(parsed.count === 0, "empty peers table should report zero peers.");
@@ -1155,9 +1162,9 @@ function testYggdrasilNodeParseEmptyPeersOutput() {
 }
 
 function testYggdrasilNodeParseEmptySessionsOutput() {
-  const parsed = parseYggdrasilGetSessionsOutput(`┌────────────┬────────────┬────────┬────┬────┐
-│ Public Key │ IP Address │ Uptime │ RX │ TX │
-└────────────┴────────────┴────────┴────┴────┘`);
+  const parsed = parseYggdrasilGetSessionsOutput(`в”Њв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”ђ
+в”‚ Public Key в”‚ IP Address в”‚ Uptime в”‚ RX в”‚ TX в”‚
+в””в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”`);
 
   assert(parsed.available === true, "empty sessions table should still be available.");
   assert(parsed.count === 0, "empty sessions table should report zero sessions.");
@@ -1170,11 +1177,11 @@ function testYggdrasilNodeParseEmptySessionsOutput() {
 }
 
 function testYggdrasilNodeParseTunOutput() {
-  const parsed = parseYggdrasilGetTunOutput(`┌─────────────────┬───────────┐
-│ TUN enabled:    │ true      │
-│ Interface name: │ Yggdrasil │
-│ Interface MTU:  │ 65535     │
-└─────────────────┴───────────┘`);
+  const parsed = parseYggdrasilGetTunOutput(`в”Њв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ђ
+в”‚ TUN enabled:    в”‚ true      в”‚
+в”‚ Interface name: в”‚ Yggdrasil в”‚
+в”‚ Interface MTU:  в”‚ 65535     в”‚
+в””в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”`);
 
   assert(parsed.available === true, "gettun parser should mark output available.");
   assert(parsed.interface === "Yggdrasil", "gettun parser should extract interface name.");
@@ -1192,16 +1199,16 @@ function testYggdrasilNodeParseTunOutput() {
 }
 
 function testYggdrasilNodeParseCommandListOutput() {
-  const parsed = parseYggdrasilCommandListOutput(`┌────────────────────────┬────────────────────────┬───────────────────────────────────────────────────────┐
-│        Command         │       Arguments        │                      Description                      │
-├────────────────────────┼────────────────────────┼───────────────────────────────────────────────────────┤
-│ addpeer                │ uri=..., interface=... │ Add a peer to the peer list                           │
-│ getpeers               │ sort=...               │ Show directly connected peers                         │
-│ getself                │                        │ Show details about this node                          │
-│ getsessions            │                        │ Show established traffic sessions with remote nodes   │
-│ gettun                 │                        │ Show information about the node's TUN interface       │
-│ list                   │                        │ List available commands                               │
-└────────────────────────┴────────────────────────┴───────────────────────────────────────────────────────┘`);
+  const parsed = parseYggdrasilCommandListOutput(`в”Њв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¬в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ђ
+в”‚        Command         в”‚       Arguments        в”‚                      Description                      в”‚
+в”њв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”јв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”јв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”¤
+в”‚ addpeer                в”‚ uri=..., interface=... в”‚ Add a peer to the peer list                           в”‚
+в”‚ getpeers               в”‚ sort=...               в”‚ Show directly connected peers                         в”‚
+в”‚ getself                в”‚                        в”‚ Show details about this node                          в”‚
+в”‚ getsessions            в”‚                        в”‚ Show established traffic sessions with remote nodes   в”‚
+в”‚ gettun                 в”‚                        в”‚ Show information about the node's TUN interface       в”‚
+в”‚ list                   в”‚                        в”‚ List available commands                               в”‚
+в””в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”ґв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”`);
 
   assert(parsed.includes("getself"), "command list parser should include getself.");
   assert(parsed.includes("getpeers"), "command list parser should include getpeers.");
@@ -2549,6 +2556,359 @@ function testTransportFileNegativePaths() {
   ];
 }
 
+function testYggdrasilDoctorDetectUtf8Bom() {
+  assert(detectUtf8Bom(Buffer.from([0xef, 0xbb, 0xbf, 0x61])) === true, "UTF-8 BOM should be detected.");
+  assert(detectUtf8Bom(Buffer.from("plain text", "utf8")) === false, "Plain UTF-8 text should not report BOM.");
+
+  return {
+    name: "yggdrasil doctor detects UTF-8 BOM",
+    ok: true,
+    detail: JSON.stringify({
+      bomDetected: true,
+      plainDetected: false
+    })
+  };
+}
+
+function testYggdrasilDoctorParseConfigDocument() {
+  const parsed = parseYggdrasilConfigDocument(`Listen:\n  - tls://0.0.0.0:12345\nPeers:\n  - tls://192.168.1.50:12345\n`);
+
+  assert(parsed.expectedListenerConfigured === true, "Doctor config parser should detect the validated static listener.");
+  assert(parsed.staticPeerConfigured === true, "Doctor config parser should detect static peers.");
+  assert(parsed.listenerPorts.includes(12345), "Doctor config parser should extract the listener port.");
+
+  return {
+    name: "yggdrasil doctor parses listener and peer config",
+    ok: true,
+    detail: JSON.stringify(parsed)
+  };
+}
+
+function testYggdrasilDoctorParsePathsOutput() {
+  const parsed = parseYggdrasilGetPathsOutput(
+    [`
+│ Remote key │ Path │
+│ key-alpha │ 200:1111:2222:3333::/64 │
+`.trim()].join("\n")
+  );
+
+  assert(parsed.available === true, "Doctor should parse getpaths output.");
+  assert(parsed.count === 1, `Expected one parsed path row, got ${parsed.count}.`);
+  assert(parsed.items[0]["Remote key"] === "key-alpha", "Doctor should preserve getpaths table headers.");
+
+  return {
+    name: "yggdrasil doctor parses getpaths output",
+    ok: true,
+    detail: JSON.stringify(parsed)
+  };
+}
+
+function testYggdrasilDoctorFirewallConflictSummary() {
+  const summary = summarizeNodeFirewallRules([
+    {
+      displayName: "Node Allow Public",
+      action: "Allow",
+      direction: "Inbound",
+      profile: "Public",
+      enabled: "True",
+      program: "C:\\Program Files\\nodejs\\node.exe"
+    },
+    {
+      displayName: "Node Block Public",
+      action: "Block",
+      direction: "Inbound",
+      profile: "Public",
+      enabled: "True",
+      program: "C:\\Program Files\\nodejs\\node.exe"
+    }
+  ]);
+
+  assert(summary.hasConflict === true, "Doctor firewall summary should detect allow/block conflicts.");
+  assert(summary.hasPublicInboundBlockConflict === true, "Doctor firewall summary should flag Public inbound block rules.");
+  assert(summary.publicBlockRuleCount === 1, "Doctor firewall summary should count Public block rules.");
+
+  return {
+    name: "yggdrasil doctor summarizes node firewall conflicts",
+    ok: true,
+    detail: JSON.stringify(summary)
+  };
+}
+
+async function testYggdrasilDoctorDiagnosticsShape() {
+  const result = await describeYggdrasilDoctor(
+    {
+      remoteUrl: "http://[200:db8::1]:8788",
+      timeoutMs: 1500
+    },
+    {
+      environmentDescribe() {
+        return {
+          platform: "win32",
+          arch: "x64",
+          node: "v22.0.0",
+          checks: {
+            commandLookupAttempted: true,
+            yggdrasilAvailable: true,
+            yggdrasilctlAvailable: true,
+            lookupCommand: "where.exe"
+          },
+          commands: {
+            yggdrasil: {
+              available: true,
+              locations: ["C:\\Program Files\\Yggdrasil\\yggdrasil.exe"]
+            },
+            yggdrasilctl: {
+              available: true,
+              locations: ["C:\\Program Files\\Yggdrasil\\yggdrasilctl.exe"]
+            }
+          },
+          readinessOnly: true,
+          connectivityChecked: false,
+          serviceControlAttempted: false,
+          note: "mocked"
+        };
+      },
+      nodeDescribe() {
+        return {
+          diagnosticsOnly: true,
+          yggdrasilctlAvailable: true,
+          commandPath: "C:\\Program Files\\Yggdrasil\\yggdrasilctl.exe",
+          supportedCommands: ["getself", "getpeers", "getsessions", "gettun", "getpaths"],
+          self: {
+            available: true,
+            ipv6Address: "200:1111:2222:3333::1",
+            publicKey: "pubkey"
+          },
+          peers: {
+            available: true,
+            count: 1,
+            items: [{ Endpoint: "tls://192.168.1.20:12345" }]
+          },
+          sessions: {
+            available: true,
+            count: 1,
+            items: [{ Endpoint: "tls://192.168.1.20:12345" }]
+          },
+          tun: {
+            available: true,
+            interface: "Yggdrasil",
+            mtu: 65535
+          }
+        };
+      },
+      healthProbe: async ({ remoteUrl, timeoutMs }) => ({
+        diagnosticsOnly: true,
+        transportDeliveryEnabled: false,
+        messageDeliveryAttempted: false,
+        remoteUrl,
+        remoteUrlReadiness: {
+          validUrl: true,
+          isHttpUrl: true,
+          isBracketedIpv6HttpUrl: true
+        },
+        probeAttempted: true,
+        healthEndpoint: `${remoteUrl}/health`,
+        httpStatus: 200,
+        ok: true,
+        payload: {
+          ok: true
+        },
+        error: null,
+        timedOut: false,
+        timeoutMs
+      }),
+      readConfigFile() {
+        return {
+          exists: true,
+          buffer: Buffer.from([0xef, 0xbb, 0xbf, 0x4c]),
+          text: `Listen:\n  - tls://0.0.0.0:12345\nPeers:\n  - tls://192.168.1.20:12345\n`,
+          error: null
+        };
+      },
+      powerShellJsonExecutor(script) {
+        if (script.includes("Get-CimInstance Win32_Service")) {
+          return {
+            ok: true,
+            value: {
+              available: true,
+              name: "Yggdrasil",
+              state: "Running",
+              startMode: "Auto",
+              pathName: "C:\\Program Files\\Yggdrasil\\yggdrasil.exe",
+              processId: 1200
+            }
+          };
+        }
+        if (script.includes("Get-NetAdapterBinding")) {
+          return {
+            ok: true,
+            value: {
+              bindings: [{ Name: "Wi-Fi", InterfaceDescription: "Wireless Adapter", Enabled: true }],
+              profiles: [
+                {
+                  Name: "Yggdrasil",
+                  InterfaceAlias: "Yggdrasil",
+                  NetworkCategory: "Public",
+                  IPv4Connectivity: "NoTraffic",
+                  IPv6Connectivity: "Internet"
+                }
+              ]
+            }
+          };
+        }
+        if (script.includes("Get-NetTCPConnection")) {
+          return {
+            ok: true,
+            value: {
+              listeners: [{ LocalAddress: "0.0.0.0", LocalPort: 12345, OwningProcess: 1200 }]
+            }
+          };
+        }
+        if (script.includes("Get-NetFirewallRule")) {
+          return {
+            ok: true,
+            value: {
+              rules: [
+                {
+                  displayName: "Node Allow Public",
+                  action: "Allow",
+                  direction: "Inbound",
+                  profile: "Public",
+                  enabled: "True",
+                  program: "C:\\Program Files\\nodejs\\node.exe"
+                },
+                {
+                  displayName: "Node Block Public",
+                  action: "Block",
+                  direction: "Inbound",
+                  profile: "Public",
+                  enabled: "True",
+                  program: "C:\\Program Files\\nodejs\\node.exe"
+                }
+              ]
+            }
+          };
+        }
+
+        return {
+          ok: false,
+          error: `Unexpected PowerShell script: ${script}`
+        };
+      },
+      ctlExecutor(commandPath, args) {
+        assert(commandPath.includes("yggdrasilctl.exe"), "Doctor should reuse the detected yggdrasilctl path.");
+        assert(args[0] === "getpaths", `Unexpected control subcommand: ${args[0]}`);
+        return {
+          ok: true,
+          status: 0,
+          stdout: [`
+│ Remote key │ Path │
+│ key-alpha │ 200:1111:2222:3333::/64 │
+`.trim()].join("\n"),
+          stderr: "",
+          error: null,
+          timedOut: false
+        };
+      }
+    }
+  );
+
+  assert(result.diagnosticsOnly === true, "Doctor should remain diagnostics-only.");
+  assert(result.transportDeliveryEnabled === false, "Doctor should not enable transport delivery.");
+  assert(result.messageDeliveryEnabled === false, "Doctor should not enable message delivery.");
+  assert(result.bundleDeliveryAttempted === false, "Doctor should not attempt bundle delivery.");
+  assert(result.config.utf8BomDetected === true, "Doctor should surface BOM detection.");
+  assert(result.listener.activeOnConfiguredPort === true, "Doctor should report the active listener.");
+  assert(result.firewall.hasPublicInboundBlockConflict === true, "Doctor should report firewall conflicts.");
+  assert(result.node.paths.count === 1, "Doctor should include parsed route/path diagnostics.");
+  assert(result.remoteHealth.ok === true, "Doctor should include remote health diagnostics when requested.");
+  assert(
+    result.remediationSteps.some((step) => step.includes("UTF-8 without BOM")),
+    "Doctor should provide remediation guidance for BOM detection."
+  );
+
+  return {
+    name: "yggdrasil doctor diagnostics shape",
+    ok: true,
+    detail: JSON.stringify({
+      listenerActive: result.listener.activeOnConfiguredPort,
+      firewallConflict: result.firewall.hasPublicInboundBlockConflict,
+      remoteHealthOk: result.remoteHealth.ok,
+      remediationSteps: result.remediationSteps
+    })
+  };
+}
+
+async function testYggdrasilDoctorSkipsRemoteProbeWithoutRemoteUrl() {
+  let probeCalled = false;
+  const result = await describeYggdrasilDoctor(
+    {},
+    {
+      environmentDescribe() {
+        return {
+          platform: "win32",
+          arch: "x64",
+          node: "v22.0.0",
+          checks: {
+            commandLookupAttempted: false,
+            yggdrasilAvailable: false,
+            yggdrasilctlAvailable: false,
+            lookupCommand: "where.exe"
+          },
+          commands: {
+            yggdrasil: { available: false, locations: [] },
+            yggdrasilctl: { available: false, locations: [] }
+          },
+          readinessOnly: true,
+          connectivityChecked: false,
+          serviceControlAttempted: false,
+          note: "mocked"
+        };
+      },
+      nodeDescribe() {
+        return {
+          diagnosticsOnly: true,
+          yggdrasilctlAvailable: false,
+          commandPath: null,
+          supportedCommands: [],
+          self: { available: false, error: "missing" },
+          peers: { available: false, count: 0, items: [], error: "missing" },
+          sessions: { available: false, count: 0, items: [], error: "missing" },
+          tun: { available: false, error: "missing" }
+        };
+      },
+      healthProbe: async () => {
+        probeCalled = true;
+        throw new Error("doctor should not probe health without a remoteUrl");
+      },
+      readConfigFile() {
+        return {
+          exists: false,
+          buffer: null,
+          text: "",
+          error: null
+        };
+      },
+      powerShellJsonExecutor() {
+        return {
+          ok: false,
+          error: "mock unavailable"
+        };
+      }
+    }
+  );
+
+  assert(probeCalled === false, "Doctor should skip the remote probe when remoteUrl is missing.");
+  assert(result.networkProbeAttempted === false, "Doctor should report no network probe when remoteUrl is missing.");
+  assert(result.remoteHealth.probeAttempted === false, "Doctor should keep remote health in skipped mode.");
+
+  return {
+    name: "yggdrasil doctor skips remote probe without remoteUrl",
+    ok: true,
+    detail: JSON.stringify(result.remoteHealth)
+  };
+}
+
 async function main() {
   const results = [];
   results.push(await testLocalHttpAgentErrorHandling());
@@ -2581,6 +2941,12 @@ async function main() {
   results.push(testYggdrasilNodeParseCommandListOutput());
   results.push(testYggdrasilNodeMissingYggdrasilctl());
   results.push(testYggdrasilNodeDiagnosticsOnlyGuarantees());
+  results.push(testYggdrasilDoctorDetectUtf8Bom());
+  results.push(testYggdrasilDoctorParseConfigDocument());
+  results.push(testYggdrasilDoctorParsePathsOutput());
+  results.push(testYggdrasilDoctorFirewallConflictSummary());
+  results.push(await testYggdrasilDoctorDiagnosticsShape());
+  results.push(await testYggdrasilDoctorSkipsRemoteProbeWithoutRemoteUrl());
   results.push(await testRuntimeProfileLoadAndValidate());
   results.push(await testRuntimeProfileMissingProfileNameFailure());
   results.push(await testRuntimeProfileMissingRequiredConfigFailure());

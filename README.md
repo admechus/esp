@@ -230,6 +230,30 @@ Planned later:
 - Raspberry Pi deployment notes
 - old laptop field-node notes
 
+## Yggdrasil Validation Status
+
+Stage 5 has now validated a real two-host Windows Yggdrasil path for diagnostics-only HTTP health checks.
+
+Validated today:
+
+- independent Windows Yggdrasil nodes
+- static IPv4 peering
+- peer and session establishment
+- route propagation and path visibility
+- IPv6 reachability over Yggdrasil
+- receiver agent HTTP /health access over Yggdrasil
+- diagnostics-only remote yggdrasil-health probing
+
+Important Windows deployment findings:
+
+- yggdrasil.conf must be saved as UTF-8 without BOM
+- IPv6 must remain enabled on the underlay adapter
+- the validated listener shape is tls://0.0.0.0:12345
+- Windows Firewall may create both Allow and Block rules for node.exe
+- because the Yggdrasil interface commonly uses the Public profile, the Block rules can silently break inbound HTTP until removed or overridden
+
+Bundle delivery remains intentionally out of scope until Stage 6.
+
 
 
 ## License

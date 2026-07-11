@@ -6,9 +6,19 @@ function trimCell(value) {
   return value.replace(/\s+/g, " ").trim();
 }
 
+const TABLE_SEPARATORS = ["\u2502", "\u0432\u201d\u201a", "\u0420\u0406\u0432\u20ac\u045c\u0432\u20ac\u045a"];
+
+function normalizeTableLine(line) {
+  let normalized = String(line ?? "");
+  for (const separator of TABLE_SEPARATORS) {
+    normalized = normalized.split(separator).join("|");
+  }
+  return normalized;
+}
+
 function splitTableRow(line) {
-  return line
-    .split("│")
+  return normalizeTableLine(line)
+    .split("|")
     .slice(1, -1)
     .map((cell) => trimCell(cell));
 }
@@ -16,8 +26,8 @@ function splitTableRow(line) {
 function extractTableRows(output) {
   return String(output ?? "")
     .split(/\r?\n/)
-    .map((line) => line.trimEnd())
-    .filter((line) => line.startsWith("│"))
+    .map((line) => normalizeTableLine(line).trimEnd())
+    .filter((line) => line.trim().startsWith("|") && line.includes("|"))
     .map(splitTableRow);
 }
 

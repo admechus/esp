@@ -31,4 +31,4 @@
 - [0008-yggdrasil-environment-discovery-audit](./tasks/0008-yggdrasil-environment-discovery-audit.md)
 - [0009-yggdrasil-connectivity-validation-audit](./tasks/0009-yggdrasil-connectivity-validation-audit.md)
 - [0010-yggdrasil-health-probe-audit](./tasks/0010-yggdrasil-health-probe-audit.md)
-- [0011-yggdrasil-node-introspection-audit](./tasks/0011-yggdrasil-node-introspection-audit.md)
+- [0011-yggdrasil-node-introspection-audit](./tasks/0011-yggdrasil-node-introspection-audit.md)`r`n- [0012-yggdrasil-two-host-validation-completion](./tasks/0012-yggdrasil-two-host-validation-completion.md)
